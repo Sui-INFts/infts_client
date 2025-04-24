@@ -1,9 +1,14 @@
 import React from "react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+// import Link from "next/link";
+// import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { HeroHeader } from "@/components/hero8-header";
-import Herologo from "../assets/image/hero5.png";
+import Herologo from "../assets/image/Hero0.png";
+import HeroOne from "../assets/image/hero1.png";
+import HeroTwo from "../assets/image/hero2.png";
+import HeroThree from "../assets/image/hero3.png";
+
+
 
 export default function HeroSection() {
   return (
@@ -18,35 +23,39 @@ export default function HeroSection() {
                 Intelligent NFTs that Learn, Evolve and remember you
                 </h1>
                 <p className="mt-8 max-w-2xl text-pretty text-lg">
-                  Highly customizable components for building modern websites
-                  and applications that look and feel the way you mean it.
+                unlocking a new era of personalized digital assets on Sui.
                 </p>
 
-                <div className="mt-12 flex flex-col items-center justify-center gap-2 sm:flex-row lg:justify-start">
-                  <Button asChild size="lg" className="px-5 text-base">
-                    <Link href="#link">
-                      <span className="text-nowrap">Start Building</span>
-                    </Link>
-                  </Button>
-                  <Button
-                    key={2}
-                    asChild
-                    size="lg"
-                    variant="ghost"
-                    className="px-5 text-base"
-                  >
-                    <Link href="#link">
-                      <span className="text-nowrap">Request a demo</span>
-                    </Link>
-                  </Button>
+                <div className="mt-0 flex flex-row items-center">
+                  <Image
+                    src={HeroOne}
+                    alt="Abstract Object"
+                    height="1500"
+                    width="1000"
+                    className="w-full max-w-sm"
+                  />
+                  <Image
+                    src={HeroTwo}
+                    alt="Abstract Object"
+                    height="1500" 
+                    width="1000"
+                    className="w-full max-w-sm"
+                  />
+                   <Image
+                    src={HeroThree}
+                    alt="Abstract Object"
+                    height="1500" 
+                    width="1000"
+                    className="w-full max-w-sm"
+                  />
                 </div>
               </div>
               <Image
-                className="ml-auto h-56 w-full object-cover invert sm:h-96 lg:absolute lg:inset-0 lg:-right-55 lg:-top-50 lg:h-max lg:w-2/3 lg:object-contain dark:mix-blend-lighten dark:invert-0"
+                className="mt-8 mx-auto h-90 w-full object-contain invert sm:h-72 lg:absolute lg:inset-0 lg:-right-200 lg:-top-60 lg:h-max lg:w-3/5 lg:object-contain dark:mix-blend-lighten dark:invert-0"
                 src={Herologo}
                 alt="Abstract Object"
-                height="4000"
-                width="3000"
+                height="3000"
+                width="2000"
               />
             </div>
           </div>
