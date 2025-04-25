@@ -51,7 +51,7 @@ export default function HeroSection() {
                 </div>
               </div>
               <Image
-                className="mt-8 mx-auto h-90 w-full object-contain invert sm:h-72 lg:absolute lg:inset-0 lg:-right-200 lg:-top-60 lg:h-max lg:w-3/5 lg:object-contain dark:mix-blend-lighten dark:invert-0"
+                className="order-first mb-8 mx-auto h-90 w-full object-contain invert sm:h-72 lg:order-last lg:absolute lg:inset-0 lg:-right-200 lg:-top-60 lg:h-max lg:w-3/5 lg:object-contain dark:mix-blend-lighten dark:invert-0"
                 src={Herologo}
                 alt="Abstract Object"
                 height="3000"
