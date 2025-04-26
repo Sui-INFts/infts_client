@@ -2,7 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 import React from "react";
 // import { ModeToggle } from "./mode-toggle";
 import Logo from "../assets/logo/Logo.png"
@@ -84,15 +84,8 @@ export const HeroHeader = () => {
               </div>
               <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
               <ConnectButton className="text-xs md:text-sm bg-white text-black shadow-md hover:text-white" />
-              </div>
-              <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
-                <Button asChild size="sm">
-                  <Link href="#">
-                    <span>Connect Wallet</span>
-                  </Link>
-                </Button>
-                {/* <ModeToggle /> */}
-              </div>
+             </div>
+           
             </div>
           </div>
         </div>
