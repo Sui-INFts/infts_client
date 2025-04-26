@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import React from "react";
 // import { ModeToggle } from "./mode-toggle";
 import Logo from "../assets/logo/Logo.png"
+import { ConnectButton } from "@mysten/dapp-kit";
 // import DarkLogo from "../assets/logo/DarkLogo.png";
 
 const menuItems = [
@@ -80,6 +81,9 @@ export const HeroHeader = () => {
                     </li>
                   ))}
                 </ul>
+              </div>
+              <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
+              <ConnectButton className="text-xs md:text-sm bg-white text-black shadow-md hover:text-white" />
               </div>
               <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
                 <Button asChild size="sm">
