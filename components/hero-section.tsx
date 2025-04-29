@@ -41,7 +41,7 @@ export default function HeroSection() {
                     width="1000"
                     className="w-full max-w-sm"
                   />
-                   <Image
+                  <Image
                     src={HeroThree}
                     alt="Abstract Object"
                     height="1500" 

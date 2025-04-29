@@ -6,7 +6,10 @@ import { Menu, X } from "lucide-react";
 import React from "react";
 // import { ModeToggle } from "./mode-toggle";
 import Logo from "../assets/logo/Logo.png"
-import { ConnectButton } from "@mysten/dapp-kit";
+import { ConnectButton, useCurrentAccount, useDisconnectWallet } from "@mysten/dapp-kit";
+import { useRouter } from "next/navigation";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 // import DarkLogo from "../assets/logo/DarkLogo.png";
 
 const menuItems = [
@@ -18,6 +21,19 @@ const menuItems = [
 
 export const HeroHeader = () => {
   const [menuState, setMenuState] = React.useState(false);
+  const account = useCurrentAccount();
+  const { mutate: disconnect } = useDisconnectWallet();
+  const router = useRouter();
+
+  const handleProfile = () => {
+    router.push("/profile");
+  };
+
+  const handleDisconnect = () => {
+    disconnect();
+    router.push("/");
+  };
+
   return (
     <header>
       <nav
@@ -83,8 +99,22 @@ export const HeroHeader = () => {
                 </ul>
               </div>
               <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
-              <ConnectButton className="text-xs md:text-sm bg-white text-black shadow-md hover:text-white" />
-             </div>
+                {account ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="rounded-full px-4 py-2">Profile</Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-44">
+                      <DropdownMenuItem onClick={handleProfile}>Profile</DropdownMenuItem>
+                      <DropdownMenuItem>Testnet</DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleDisconnect} variant="destructive">Disconnect</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <ConnectButton className="text-xs md:text-sm bg-white text-black shadow-md hover:text-white" />
+                )}
+              </div>
            
             </div>
           </div>
