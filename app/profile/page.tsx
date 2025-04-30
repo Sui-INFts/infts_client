@@ -43,8 +43,8 @@ export default function Profile() {
           </div>
           <div>
             {account ? (
-              <Button size="sm" variant="destructive" onClick={handleDisconnect}>
-                Disconnect
+              <Button size="lg" variant="outline" onClick={handleDisconnect} className="text-white border-white">
+                Mint NFT
               </Button>
             ) : (
               <ConnectButton className="text-xs md:text-sm bg-primary text-primary-foreground shadow-md hover:bg-primary/90" />

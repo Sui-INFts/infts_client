@@ -105,7 +105,6 @@ export const HeroHeader = () => {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-44">
                       <DropdownMenuItem onClick={handleProfile}>Profile</DropdownMenuItem>
-                      <DropdownMenuItem>Testnet</DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={handleDisconnect} variant="destructive">Disconnect</DropdownMenuItem>
                     </DropdownMenuContent>
