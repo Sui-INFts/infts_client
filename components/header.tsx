@@ -13,10 +13,9 @@ import { Button } from "@/components/ui/button";
 // import DarkLogo from "../assets/logo/DarkLogo.png";
 
 const menuItems = [
-  { name: "Home", href: "#link" },
+  { name: "Home", href: "/" },
   { name: "All INFTs", href: "#link" },
   { name: "Activities", href: "#link" },
-
 ];
 
 export const HeroHeader = () => {
@@ -115,7 +114,6 @@ export const HeroHeader = () => {
                   <ConnectButton className="text-xs md:text-sm bg-white text-black shadow-md hover:text-white" />
                 )}
               </div>
-           
             </div>
           </div>
         </div>

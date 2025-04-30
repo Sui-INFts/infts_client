@@ -2,7 +2,7 @@ import React from "react";
 // import Link from "next/link";
 // import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { HeroHeader } from "@/components/hero8-header";
+import { HeroHeader } from "@/components/header";
 import Herologo from "../assets/image/Hero0.png";
 import HeroOne from "../assets/image/hero1.png";
 import HeroTwo from "../assets/image/hero2.png";

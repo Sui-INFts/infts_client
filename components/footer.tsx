@@ -39,7 +39,7 @@ export default function FooterSection() {
             </svg>
           </Link>
           <Link
-            href="#"
+            href="https://www.linkedin.com/company/inftsprotocol/"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="LinkedIn"
