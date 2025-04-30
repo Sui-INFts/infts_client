@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { HeroHeader } from "@/components/header";
 import { Button } from "@/components/ui/button";
-import { useCurrentAccount } from "@mysten/dapp-kit";
-import { Transaction } from "@mysten/sui/transactions";
-import { useNetworkVariables, suiClient } from "@/contract";
+import { useCurrentAccount, useWallets, useSignAndExecuteTransaction } from "@mysten/dapp-kit";
+import { Transaction as TransactionBlock } from "@mysten/sui/transactions";
+import { useNetworkVariables } from "@/contract";
 import { toast } from "sonner";
 
 // Define the NFT form data structure
@@ -25,6 +25,7 @@ const WALRUS_API_KEY = process.env.NEXT_PUBLIC_WALRUS_API_KEY || "";
 export default function CreateNFT() {
   const router = useRouter();
   const account = useCurrentAccount();
+  const wallets = useWallets();
   const networkVariables = useNetworkVariables();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -120,7 +121,7 @@ export default function CreateNFT() {
 
   // Mint NFT on the SUI blockchain
   const mintNFT = async () => {
-    if (!account || !formData.file) {
+    if (!account || !formData.file || wallets.length === 0) {
       toast.error("Please connect your wallet and select a file");
       return;
     }
@@ -131,22 +132,46 @@ export default function CreateNFT() {
       const { public_uri, private_uri } = await uploadToWalrus(formData.file);
       
       // 2. Create and execute the transaction
-      const tx = new Transaction();
+      const tx = new TransactionBlock();
       tx.moveCall({
         target: `${networkVariables.PACKAGE_ID}::inft_core::mint_nft`,
         arguments: [
-          tx.pure(formData.name),
-          tx.pure(formData.description),
-          tx.pure(public_uri),
-          tx.pure(private_uri),
-          tx.pure(formData.atomaModelId),
+          tx.pure.string(formData.name),
+          tx.pure.string(formData.description),
+          tx.pure.string(public_uri),
+          tx.pure.string(private_uri),
+          tx.pure.string(formData.atomaModelId),
         ],
       });
 
-      const result = await suiClient.signAndExecuteTransaction({
-        transaction: tx,
-        signer: account.address,
-        requestType: "WaitForLocalExecution",
+      // Use the useSignAndExecuteTransaction hook instead of calling the method directly on wallet
+      const { mutate: signAndExecute } = useSignAndExecuteTransaction();
+      
+      // Execute the transaction - corrected structure for dapp-kit v0.16.0
+      const result = await new Promise<{
+        digest: string;
+        transaction: {
+          data: {
+            gasData: object;
+            messageVersion: string;
+            transaction: object;
+          };
+        };
+        effects: {
+          status: {
+            status: string;
+          };
+          transactionDigest: string;
+        };
+      }>((resolve, reject) => {
+        signAndExecute({
+          transaction: tx,
+          requestType: 'WaitForEffectsCert',
+          chain: networkVariables.CHAIN_ID as `${string}:${string}`,
+        }, {
+          onSuccess: (data) => resolve(data),
+          onError: (error) => reject(error),
+        });
       });
 
       if (result.effects?.status.status === "success") {
@@ -168,7 +193,7 @@ export default function CreateNFT() {
       <HeroHeader />
       <div className="max-w-5xl mx-auto px-4 pt-23 pb-24">
         <h1 className="text-3xl md:text-4xl font-bold mb-8 text-white">Create an NFT</h1>
-        <p className="text-muted-foreground mb-8">⚠️ Once your item is minted you will not be able to change any of its information.</p>
+        <p className="text-muted-foreground mb-8">Once your item is minted you will not be able to change any of its information.</p>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           {/* Left Side - Upload Area */}
