@@ -1,8 +1,10 @@
 'use client'
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import React from "react";
 import { SuiClientProvider, WalletProvider } from "@mysten/dapp-kit";
-import { networkConfig, network } from "../contract/index"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { networkConfig, network } from "@/contract";
+import { Toaster } from "sonner";
 import "@mysten/dapp-kit/dist/index.css";
 
 const queryClient = new QueryClient({
@@ -20,6 +22,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <SuiClientProvider networks={networkConfig} defaultNetwork={network}>
         <WalletProvider autoConnect>
           {children}
+          <Toaster position="top-right" />
         </WalletProvider>
       </SuiClientProvider>
     </QueryClientProvider>

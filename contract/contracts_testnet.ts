@@ -1,20 +1,18 @@
 /**
- * Testnet contract addresses and configuration
+ * Testnet contract addresses and configuration for INFT Protocol
  */
 
 export const testnet = {
-  // NFT marketplace contract address
-  MARKETPLACE_ADDRESS: "0x<testnet_marketplace_address_here>",
+  // INFT protocol package ID - Replace with your deployed package ID
+  PACKAGE_ID: "0x<your_deployed_package_id_here>",
   
-  // NFT collection contract address
-  COLLECTION_ADDRESS: "0x<testnet_collection_address_here>",
+  // Module names from the smart contract
+  INFT_CORE_MODULE: "inft_core",
+  EVOLUTION_LOGIC_MODULE: "evolution_logic",
   
-  // Package ID containing the Move modules for NFT operations
-  PACKAGE_ID: "0x<testnet_package_id_here>",
+  // Chain ID for testnet
+  CHAIN_ID: "sui:testnet",
   
-  // Module name for core NFT functionality
-  MODULE_NAME: "infts",
-  
-  // Other relevant contract configuration for testnet
-  CHAIN_ID: "sui:testnet"
+  // Optional: If you have a marketplace contract address
+  MARKETPLACE_ADDRESS: "0x<optional_marketplace_address>",
 };

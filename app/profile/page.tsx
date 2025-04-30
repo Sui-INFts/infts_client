@@ -2,9 +2,10 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { useDisconnectWallet, useCurrentAccount } from "@mysten/dapp-kit";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 import { ConnectButton } from "@mysten/dapp-kit";
 import { HeroHeader } from "@/components/header";
+import { PlusCircle } from "lucide-react";
 
 function getStableSeed(address: string | null) {
   // Use the wallet address as seed if available, otherwise use a fixed fallback
@@ -14,11 +15,9 @@ function getStableSeed(address: string | null) {
 export default function Profile() {
   const router = useRouter();
   const account = useCurrentAccount();
-  const { mutate: disconnect } = useDisconnectWallet();
 
-  const handleDisconnect = () => {
-    disconnect();
-    router.push("/");
+  const handleCreateNFT = () => {
+    router.push("/create");
   };
 
   const avatarSeed = getStableSeed(account?.address || null);
@@ -41,11 +40,19 @@ export default function Profile() {
               <span>{account ? `${account.address.slice(0, 7)}...${account.address.slice(-4)}` : 'Wallet_Address'}</span>
             </div>
           </div>
-          <div>
+          <div className="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-2">
             {account ? (
-              <Button size="lg" variant="outline" onClick={handleDisconnect} className="text-white border-white">
-                Mint NFT
-              </Button>
+              <>
+                <Button 
+                  size="lg" 
+                  variant="default" 
+                  onClick={handleCreateNFT} 
+                  className="bg-primary text-primary-foreground"
+                >
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Create INFT
+                </Button>
+              </>
             ) : (
               <ConnectButton className="text-xs md:text-sm bg-primary text-primary-foreground shadow-md hover:bg-primary/90" />
             )}
@@ -79,4 +86,4 @@ export default function Profile() {
       </div>
     </div>
   );
-} 
+}
