@@ -1,0 +1,18 @@
+### User Flow Diagram
+
+1. **Minting an INFT**
+    - User signs a transaction
+    - Smart contract mints INFT with metadata stored on Walrus
+    - Metadata encrypted with Seal and access policies attached
+2. **Viewing/Interacting**
+    - Frontend dApp requests decryption key via Seal SDK
+    - Seal backend verifies onchain policy and identity
+    - Data decrypted on client-side
+3. **Evolution**
+    - User performs action (interaction, game, quest, etc.)
+    - Updates stored encrypted state on Walrus
+    - Smart contract updates NFT evolution metadata
+4. **Gated Access/Unlock**
+    - Creator attaches content to NFT with specific access conditions
+    - Seal enforces policies (e.g., time-lock or allowlist)
+    - Data decrypted only if access conditions are met
