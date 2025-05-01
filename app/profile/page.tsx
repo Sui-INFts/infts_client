@@ -4,8 +4,9 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { ConnectButton } from "@mysten/dapp-kit";
+import { useSuiClient } from "@mysten/dapp-kit";
 import { HeroHeader } from "@/components/header";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Wallet } from "lucide-react";
 
 function getStableSeed(address: string | null) {
   // Use the wallet address as seed if available, otherwise use a fixed fallback
@@ -15,12 +16,52 @@ function getStableSeed(address: string | null) {
 export default function Profile() {
   const router = useRouter();
   const account = useCurrentAccount();
+  const suiClient = useSuiClient();
+  const [balance, setBalance] = React.useState<string>("0");
+  const [suiPrice, setSuiPrice] = React.useState<number>(0);
+
+  React.useEffect(() => {
+    const fetchSuiPrice = async () => {
+      try {
+        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=sui&vs_currencies=usd');
+        const data = await response.json();
+        setSuiPrice(data.sui.usd);
+      } catch (error) {
+        console.error("Error fetching SUI price:", error);
+      }
+    };
+
+    fetchSuiPrice();
+    // Refresh price every 60 seconds
+    const interval = setInterval(fetchSuiPrice, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  React.useEffect(() => {
+    const fetchBalance = async () => {
+      if (account?.address) {
+        try {
+          const balance = await suiClient.getBalance({
+            owner: account.address,
+            coinType: "0x2::sui::SUI"
+          });
+          setBalance(balance.totalBalance);
+        } catch (error) {
+          console.error("Error fetching balance:", error);
+          setBalance("0");
+        }
+      }
+    };
+    fetchBalance();
+  }, [account?.address, suiClient]);
 
   const handleCreateNFT = () => {
     router.push("/create");
   };
 
   const avatarSeed = getStableSeed(account?.address || null);
+  const formattedBalance = balance ? (parseInt(balance) / 1e9).toFixed(2) : "0.00";
+  const usdValue = balance ? ((parseInt(balance) / 1e9) * suiPrice).toFixed(2) : "0.00";
 
   return (
     <div className="min-h-screen w-full bg-black">
@@ -40,9 +81,17 @@ export default function Profile() {
               <span>{account ? `${account.address.slice(0, 7)}...${account.address.slice(-4)}` : 'Wallet_Address'}</span>
             </div>
           </div>
-          <div className="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-2">
+          <div className="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-4 items-center">
             {account ? (
               <>
+                <div className="flex items-center space-x-2 bg-zinc-900/50 px-4 py-2 rounded-lg border border-zinc-800">
+                  <Wallet className="h-4 w-4 text-zinc-400" />
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm font-medium text-white">{formattedBalance} SUI</span>
+                    <span className="text-sm text-zinc-400">|</span>
+                    <span className="text-sm font-medium text-white">${usdValue}</span>
+                  </div>
+                </div>
                 <Button 
                   size="lg" 
                   variant="default" 
@@ -54,7 +103,7 @@ export default function Profile() {
                 </Button>
               </>
             ) : (
-              <ConnectButton className="text-xs md:text-sm bg-primary text-primary-foreground shadow-md hover:bg-primary/90" />
+              <ConnectButton />
             )}
           </div>
         </div>

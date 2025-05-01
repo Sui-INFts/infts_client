@@ -4,7 +4,7 @@
 
 export const testnet = {
   // INFT protocol package ID - Replace with your deployed package ID
-  PACKAGE_ID: "0x<your_deployed_package_id_here>",
+  PACKAGE_ID: "0x7111b909689ec53115a2360c3fe9106c2c6f8e152dbc37d4a98bae51a37f8f62",
   
   // Module names from the smart contract
   INFT_CORE_MODULE: "inft_core",

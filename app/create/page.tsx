@@ -3,7 +3,6 @@
 import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { HeroHeader } from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { useCurrentAccount, useWallets, useSignAndExecuteTransaction } from "@mysten/dapp-kit";
 import { Transaction as TransactionBlock } from "@mysten/sui/transactions";
@@ -15,18 +14,20 @@ interface NFTFormData {
   name: string;
   description: string;
   file: File | null;
-  atomaModelId: string; // Reference to Atoma AI model
+  externalLink: string;
 }
 
 // Walrus storage connection details
-const WALRUS_ENDPOINT = "https://api.walrus-testnet.walrus.space/v1/upload";
-const WALRUS_API_KEY = process.env.NEXT_PUBLIC_WALRUS_API_KEY || "";
+const WALRUS_PUBLISHER_URL = "https://sui-walrus-testnet-publisher.bwarelabs.com";
+const WALRUS_AGGREGATOR_URL = "https://walrus-aggregator-testnet.haedal.xyz";
+const SUI_NETWORK = "testnet";
 
 export default function CreateNFT() {
   const router = useRouter();
   const account = useCurrentAccount();
   const wallets = useWallets();
   const networkVariables = useNetworkVariables();
+  const { mutate: signAndExecute } = useSignAndExecuteTransaction();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -34,9 +35,9 @@ export default function CreateNFT() {
     name: "",
     description: "",
     file: null,
-    atomaModelId: "default-model-id", // Default value, can be changed
+    externalLink: "",
   });
-  const [supply, setSupply] = useState<number>(1);
+  const [atomaModelId, setAtomaModelId] = useState<string>("default-model");
 
   // Handle file selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,63 +61,83 @@ export default function CreateNFT() {
   };
 
   // Upload file to Walrus decentralized storage
-  const uploadToWalrus = async (file: File): Promise<{ public_uri: string, private_uri: string }> => {
-    // Create form data for upload
-    const uploadData = new FormData();
-    uploadData.append("file", file);
-
+  const uploadToWalrus = async (file: File): Promise<string> => {
     try {
-      // Upload public metadata (the file itself)
-      const publicUploadResponse = await fetch(WALRUS_ENDPOINT, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${WALRUS_API_KEY}`,
-        },
-        body: uploadData,
+      console.log("Starting upload to Walrus...");
+      console.log("File details:", {
+        name: file.name,
+        type: file.type,
+        size: file.size
       });
 
-      if (!publicUploadResponse.ok) {
-        throw new Error("Failed to upload file to Walrus storage");
-      }
-
-      const publicData = await publicUploadResponse.json();
-      const publicUri = publicData.cid;
-
-      // Create and upload private metadata (can contain additional info)
-      const privateMetadata = {
-        name: formData.name,
-        description: formData.description,
-        atomaModelId: formData.atomaModelId,
-        creationDate: new Date().toISOString(),
-        creator: account?.address,
-      };
-
-      const privateBlob = new Blob([JSON.stringify(privateMetadata)], { type: "application/json" });
-      const privateFile = new File([privateBlob], "private-metadata.json");
-      
-      const privateUploadData = new FormData();
-      privateUploadData.append("file", privateFile);
-      
-      const privateUploadResponse = await fetch(WALRUS_ENDPOINT, {
-        method: "POST",
+      // Upload the file to Walrus storage
+      const response = await fetch(`${WALRUS_PUBLISHER_URL}/v1/blobs?epochs=2`, {
+        method: "PUT",
+        body: file,
         headers: {
-          "Authorization": `Bearer ${WALRUS_API_KEY}`,
-        },
-        body: privateUploadData,
+          'Content-Type': file.type || 'application/octet-stream',
+          'X-Sui-Address': account?.address || '',
+          'X-Sui-Network': SUI_NETWORK
+        }
       });
 
-      if (!privateUploadResponse.ok) {
-        throw new Error("Failed to upload private metadata to Walrus storage");
+      console.log("Upload response status:", response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Upload failed with status:", response.status);
+        console.error("Error response:", errorText);
+        throw new Error(`Failed to upload file to Walrus storage: ${response.status} - ${errorText}`);
       }
 
-      const privateData = await privateUploadResponse.json();
-      const privateUri = privateData.cid;
+      const data = await response.json();
+      console.log("Upload response data:", data);
 
-      return { public_uri: publicUri, private_uri: privateUri };
+      // Extract the blob ID from the response
+      let blobId: string;
+      if (data.newlyCreated) {
+        blobId = data.newlyCreated.blobObject.blobId;
+      } else if (data.alreadyCertified) {
+        blobId = data.alreadyCertified.blobId;
+      } else {
+        console.error("Unexpected response format:", data);
+        throw new Error("Unexpected response format from Walrus");
+      }
+
+      // Construct the URL to access the blob
+      const blobUrl = `${WALRUS_AGGREGATOR_URL}/v1/blobs/${blobId}`;
+      console.log("Successfully uploaded. Blob URL:", blobUrl);
+      return blobUrl;
     } catch (error) {
       console.error("Error uploading to Walrus:", error);
       throw error;
     }
+  };
+
+  // Create public metadata for the NFT
+  const createPublicMetadata = () => {
+    const metadata = {
+      name: formData.name,
+      description: formData.description,
+      externalLink: formData.externalLink,
+      creationDate: new Date().toISOString(),
+      creator: account?.address,
+    };
+    return metadata;
+  };
+
+  // Create private metadata for the NFT
+  const createPrivateMetadata = () => {
+    // This could contain additional private information
+    const metadata = {
+      creatorNotes: "Private notes for this NFT",
+      creationDetails: {
+        application: "INFT Protocol",
+        version: "1.0.0",
+        timestamp: new Date().toISOString()
+      }
+    };
+    return metadata;
   };
 
   // Mint NFT on the SUI blockchain
@@ -126,63 +147,63 @@ export default function CreateNFT() {
       return;
     }
 
+    console.log("Connected account address:", account?.address);
+    if (!account?.address) {
+      toast.error("Wallet is not connected properly.");
+      return;
+    }
+
     setIsLoading(true);
     try {
       // 1. Upload media to Walrus
-      const { public_uri, private_uri } = await uploadToWalrus(formData.file);
+      const imageUrl = await uploadToWalrus(formData.file);
+    
+      // 2. Create and upload public metadata
+      const publicMetadata = createPublicMetadata();
+      const publicMetadataBlob = new Blob([JSON.stringify(publicMetadata)], { type: "application/json" });
+      const publicMetadataFile = new File([publicMetadataBlob], "public_metadata.json");
+      const publicMetadataUri = await uploadToWalrus(publicMetadataFile);
       
-      // 2. Create and execute the transaction
+      // 3. Create and upload private metadata
+      const privateMetadata = createPrivateMetadata();
+      const privateMetadataBlob = new Blob([JSON.stringify(privateMetadata)], { type: "application/json" });
+      const privateMetadataFile = new File([privateMetadataBlob], "private_metadata.json");
+      const privateMetadataUri = await uploadToWalrus(privateMetadataFile);
+    
+      // 4. Create and execute the transaction
       const tx = new TransactionBlock();
+      
+      // Set gas budget for the transaction
+      tx.setGasBudget(100000000); // 0.1 SUI
+      
+      // Use the mint_nft function from inft_core.move
       tx.moveCall({
         target: `${networkVariables.PACKAGE_ID}::inft_core::mint_nft`,
         arguments: [
-          tx.pure.string(formData.name),
-          tx.pure.string(formData.description),
-          tx.pure.string(public_uri),
-          tx.pure.string(private_uri),
-          tx.pure.string(formData.atomaModelId),
+          tx.pure.string(formData.name),                  // name
+          tx.pure.string(formData.description),          // description
+          tx.pure.string(imageUrl),                      // image_url
+          tx.pure.string(publicMetadataUri),             // public_metadata_uri
+          tx.pure.string(privateMetadataUri),            // private_metadata_uri
+          tx.pure.string(atomaModelId),                  // atoma_model_id
         ],
       });
-
-      // Use the useSignAndExecuteTransaction hook instead of calling the method directly on wallet
-      const { mutate: signAndExecute } = useSignAndExecuteTransaction();
-      
-      // Execute the transaction - corrected structure for dapp-kit v0.16.0
-      const result = await new Promise<{
-        digest: string;
-        transaction: {
-          data: {
-            gasData: object;
-            messageVersion: string;
-            transaction: object;
-          };
-        };
-        effects: {
-          status: {
-            status: string;
-          };
-          transactionDigest: string;
-        };
-      }>((resolve, reject) => {
-        signAndExecute({
-          transaction: tx,
-          requestType: 'WaitForEffectsCert',
-          chain: networkVariables.CHAIN_ID as `${string}:${string}`,
-        }, {
-          onSuccess: (data) => resolve(data),
-          onError: (error) => reject(error),
-        });
-      });
-
-      if (result.effects?.status.status === "success") {
-        toast.success("NFT minted successfully!");
+    
+      // Execute the transaction
+      const result = (await signAndExecute({
+        transaction: tx,
+        chain: networkVariables.CHAIN_ID as `${string}:${string}`
+      })) as unknown as { digest: string };
+    
+      if (result?.digest) {
+        toast.success("Intelligent NFT minted successfully!");
         router.push("/profile"); // Redirect to profile page
       } else {
         toast.error("Failed to mint NFT");
       }
     } catch (error) {
       console.error("Error minting NFT:", error);
-      toast.error("Error minting NFT");
+      toast.error(`Error minting NFT: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsLoading(false);
     }
@@ -190,25 +211,23 @@ export default function CreateNFT() {
 
   return (
     <div className="min-h-screen w-full bg-black">
-      <HeroHeader />
-      <div className="max-w-5xl mx-auto px-4 pt-23 pb-24">
-        <h1 className="text-3xl md:text-4xl font-bold mb-8 text-white">Create an NFT</h1>
-        <p className="text-muted-foreground mb-8">Once your item is minted you will not be able to change any of its information.</p>
-        
+      <div className="max-w-5xl mx-auto px-4 pt-16 pb-24">
+        <h1 className="text-3xl font-bold mb-2 text-white">Create an Intelligent NFT</h1>
+        <p className="text-gray-400 mb-8">Your INFT will evolve as users interact with it. Gas fees on Sui testnet apply for minting.</p>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           {/* Left Side - Upload Area */}
           <div className="flex flex-col">
-            <div 
-              className="border-2 border-dashed border-white/20 rounded-lg h-96 flex items-center justify-center cursor-pointer overflow-hidden"
+            <div
+              className="border-2 border-dashed border-gray-700 rounded-lg h-96 flex items-center justify-center cursor-pointer overflow-hidden"
               onClick={() => fileInputRef.current?.click()}
             >
               {previewUrl ? (
                 <div className="w-full h-full relative">
-                  <Image 
-                    src={previewUrl} 
-                    alt="NFT Preview" 
-                    fill 
-                    className="object-contain" 
+                  <Image
+                    src={previewUrl}
+                    alt="NFT Preview"
+                    fill
+                    className="object-contain"
                   />
                 </div>
               ) : (
@@ -218,10 +237,10 @@ export default function CreateNFT() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   </div>
-                  <p className="text-sm text-gray-400">Drag and drop media</p>
-                  <p className="text-xs text-gray-500 mt-1">or click to browse files</p>
+                  <p className="text-gray-400">Drag and drop media</p>
+                  <p className="text-gray-600 mt-1">or browse files</p>
                   <p className="text-xs text-gray-600 mt-4">Max size: 50MB</p>
-                  <p className="text-xs text-gray-600">Supported: JPG, PNG, GIF, SVG, MP4</p>
+                  <p className="text-xs text-gray-600">JPG, PNG, GIF, SVG, MP4</p>
                 </div>
               )}
             </div>
@@ -233,18 +252,9 @@ export default function CreateNFT() {
               className="hidden"
             />
           </div>
-          
+
           {/* Right Side - Form Fields */}
           <div className="space-y-6">
-            <div>
-              <label className="block text-white text-sm font-medium mb-2">Collection *</label>
-              <Button variant="outline" className="w-full justify-start">
-                <span className="mr-2">+</span>
-                Create a new collection
-              </Button>
-              <p className="text-xs text-muted-foreground mt-1">Not all collections are eligible</p>
-            </div>
-            
             <div>
               <label htmlFor="name" className="block text-white text-sm font-medium mb-2">
                 Name *
@@ -255,27 +265,30 @@ export default function CreateNFT() {
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
-                placeholder="Name your NFT"
-                className="w-full px-4 py-2 bg-background border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="Name your Intelligent NFT"
+                className="w-full px-4 py-2 bg-black border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                 required
               />
             </div>
-            
+
             <div>
-              <label htmlFor="supply" className="block text-white text-sm font-medium mb-2">
-                Supply *
+              <label htmlFor="atomaModelId" className="block text-white text-sm font-medium mb-2">
+                Atoma AI Model *
               </label>
-              <input
-                type="number"
-                id="supply"
-                value={supply}
-                onChange={(e) => setSupply(Number(e.target.value))}
-                min="1"
-                className="w-full px-4 py-2 bg-background border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+              <select
+                id="atomaModelId"
+                value={atomaModelId}
+                onChange={(e) => setAtomaModelId(e.target.value)}
+                className="w-full px-4 py-2 bg-black border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                 required
-              />
+              >
+                <option value="default-model">Default Model</option>
+                <option value="creative-model">Creative Model</option>
+                <option value="analytical-model">Analytical Model</option>
+                <option value="companion-model">Companion Model</option>
+              </select>
             </div>
-            
+
             <div>
               <label htmlFor="description" className="block text-white text-sm font-medium mb-2">
                 Description
@@ -285,35 +298,33 @@ export default function CreateNFT() {
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
-                placeholder="Enter a description for your NFT"
-                className="w-full px-4 py-2 bg-background border rounded-md focus:outline-none focus:ring-2 focus:ring-primary h-24 resize-none"
+                placeholder="Enter a description for your Intelligent NFT"
+                className="w-full px-4 py-2 bg-black border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-24 resize-none text-white"
               />
             </div>
-            
+
             <div>
-              <label htmlFor="atomaModelId" className="block text-white text-sm font-medium mb-2">
-                Atoma AI Model ID *
+              <label htmlFor="externalLink" className="block text-white text-sm font-medium mb-2">
+                External link
               </label>
               <input
                 type="text"
-                id="atomaModelId"
-                name="atomaModelId"
-                value={formData.atomaModelId}
+                id="externalLink"
+                name="externalLink"
+                value={formData.externalLink}
                 onChange={handleInputChange}
-                placeholder="Enter Atoma AI model ID"
-                className="w-full px-4 py-2 bg-background border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                required
+                placeholder="https://yoursite.io/item/123"
+                className="w-full px-4 py-2 bg-black border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
               />
             </div>
-            
+
             <div className="pt-4">
-              <Button 
-                onClick={mintNFT} 
-                disabled={!formData.file || !formData.name || isLoading} 
-                className="w-full" 
-                size="lg"
+              <Button
+                onClick={mintNFT}
+                disabled={!formData.file || !formData.name || isLoading}
+                className="w-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md float-right"
               >
-                {isLoading ? "Creating..." : "Create NFT"}
+                {isLoading ? "Creating..." : "Create INFT"}
               </Button>
             </div>
           </div>
