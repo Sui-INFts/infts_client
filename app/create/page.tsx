@@ -8,6 +8,7 @@ import { useCurrentAccount, useWallets, useSignAndExecuteTransaction } from "@my
 import { Transaction as TransactionBlock } from "@mysten/sui/transactions";
 import { useNetworkVariables } from "@/contract";
 import { toast } from "sonner";
+import { HeroHeader } from "@/components/header";
 
 // Define the NFT form data structure
 interface NFTFormData {
@@ -211,7 +212,8 @@ export default function CreateNFT() {
 
   return (
     <div className="min-h-screen w-full bg-black">
-      <div className="max-w-5xl mx-auto px-4 pt-16 pb-24">
+      <HeroHeader />
+      <div className="max-w-5xl mx-auto px-4 pt-27 pb-24">
         <h1 className="text-3xl font-bold mb-2 text-white">Create an Intelligent NFT</h1>
         <p className="text-gray-400 mb-8">Your INFT will evolve as users interact with it. Gas fees on Sui testnet apply for minting.</p>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
