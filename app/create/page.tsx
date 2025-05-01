@@ -9,6 +9,7 @@ import { Transaction as TransactionBlock } from "@mysten/sui/transactions";
 import { useNetworkVariables } from "@/contract";
 import { toast } from "sonner";
 import { HeroHeader } from "@/components/header";
+import FooterSection from "@/components/footer";
 
 // Define the NFT form data structure
 interface NFTFormData {
@@ -211,127 +212,131 @@ export default function CreateNFT() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-black">
+    <div className="min-h-screen w-full flex flex-col">
       <HeroHeader />
-      <div className="max-w-5xl mx-auto px-4 pt-27 pb-24">
-        <h1 className="text-3xl font-bold mb-2 text-white">Create an Intelligent NFT</h1>
-        <p className="text-gray-400 mb-8">Your INFT will evolve as users interact with it. Gas fees on Sui testnet apply for minting.</p>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-          {/* Left Side - Upload Area */}
-          <div className="flex flex-col">
-            <div
-              className="border-2 border-dashed border-gray-700 rounded-lg h-96 flex items-center justify-center cursor-pointer overflow-hidden"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              {previewUrl ? (
-                <div className="w-full h-full relative">
-                  <Image
-                    src={previewUrl}
-                    alt="NFT Preview"
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-              ) : (
-                <div className="text-center p-6">
-                  <div className="mx-auto h-12 w-12 text-gray-400 mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
+      <main className="flex-1">
+        <div className="max-w-5xl mx-auto px-4 pt-27 pb-24">
+          <h1 className="text-3xl font-bold mb-2 text-white">Create an Intelligent NFT</h1>
+          <p className="text-gray-400 mb-8">Your INFT will evolve as users interact with it. Gas fees on Sui testnet apply for minting.</p>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            {/* Left Side - Upload Area */}
+            <div className="flex flex-col">
+              <div
+                className="border-2 border-dashed border-gray-700 rounded-lg h-96 flex items-center justify-center cursor-pointer overflow-hidden"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {previewUrl ? (
+                  <div className="w-full h-full relative">
+                    <Image
+                      src={previewUrl}
+                      alt="NFT Preview"
+                      fill
+                      className="object-contain"
+                    />
                   </div>
-                  <p className="text-gray-400">Drag and drop media</p>
-                  <p className="text-gray-600 mt-1">or browse files</p>
-                  <p className="text-xs text-gray-600 mt-4">Max size: 50MB</p>
-                  <p className="text-xs text-gray-600">JPG, PNG, GIF, SVG, MP4</p>
-                </div>
-              )}
-            </div>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              accept="image/jpeg,image/png,image/gif,image/svg+xml,video/mp4"
-              className="hidden"
-            />
-          </div>
-
-          {/* Right Side - Form Fields */}
-          <div className="space-y-6">
-            <div>
-              <label htmlFor="name" className="block text-white text-sm font-medium mb-2">
-                Name *
-              </label>
+                ) : (
+                  <div className="text-center p-6">
+                    <div className="mx-auto h-12 w-12 text-gray-400 mb-4">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <p className="text-gray-400">Drag and drop media</p>
+                    <p className="text-gray-600 mt-1">or browse files</p>
+                    <p className="text-xs text-gray-600 mt-4">Max size: 50MB</p>
+                    <p className="text-xs text-gray-600">JPG, PNG, GIF, SVG, MP4</p>
+                  </div>
+                )}
+              </div>
               <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                placeholder="Name your Intelligent NFT"
-                className="w-full px-4 py-2 bg-black border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-                required
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                accept="image/jpeg,image/png,image/gif,image/svg+xml,video/mp4"
+                className="hidden"
               />
             </div>
 
-            <div>
-              <label htmlFor="atomaModelId" className="block text-white text-sm font-medium mb-2">
-                Atoma AI Model *
-              </label>
-              <select
-                id="atomaModelId"
-                value={atomaModelId}
-                onChange={(e) => setAtomaModelId(e.target.value)}
-                className="w-full px-4 py-2 bg-black border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-                required
-              >
-                <option value="default-model">Default Model</option>
-                <option value="creative-model">Creative Model</option>
-                <option value="analytical-model">Analytical Model</option>
-                <option value="companion-model">Companion Model</option>
-              </select>
-            </div>
+            {/* Right Side - Form Fields */}
+            <div className="space-y-6">
+              <div>
+                <label htmlFor="name" className="block text-white text-sm font-medium mb-2">
+                  Name *
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  placeholder="Name your Intelligent NFT"
+                  className="w-full px-4 py-2 bg-black border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                  required
+                />
+              </div>
 
-            <div>
-              <label htmlFor="description" className="block text-white text-sm font-medium mb-2">
-                Description
-              </label>
-              <textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                placeholder="Enter a description for your Intelligent NFT"
-                className="w-full px-4 py-2 bg-black border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-24 resize-none text-white"
-              />
-            </div>
+              <div>
+                <label htmlFor="atomaModelId" className="block text-white text-sm font-medium mb-2">
+                  Atoma AI Model *
+                </label>
+                <select
+                  id="atomaModelId"
+                  value={atomaModelId}
+                  onChange={(e) => setAtomaModelId(e.target.value)}
+                  className="w-full px-4 py-2 bg-black border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                  required
+                >
+                  <option value="default-model">Default Model</option>
+                  <option value="creative-model">Creative Model</option>
+                  <option value="analytical-model">Analytical Model</option>
+                  <option value="companion-model">Companion Model</option>
+                </select>
+              </div>
 
-            <div>
-              <label htmlFor="externalLink" className="block text-white text-sm font-medium mb-2">
-                External link
-              </label>
-              <input
-                type="text"
-                id="externalLink"
-                name="externalLink"
-                value={formData.externalLink}
-                onChange={handleInputChange}
-                placeholder="https://yoursite.io/item/123"
-                className="w-full px-4 py-2 bg-black border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-              />
-            </div>
+              <div>
+                <label htmlFor="description" className="block text-white text-sm font-medium mb-2">
+                  Description
+                </label>
+                <textarea
+                  id="description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  placeholder="Enter a description for your Intelligent NFT"
+                  className="w-full px-4 py-2 bg-black border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-24 resize-none text-white"
+                />
+              </div>
 
-            <div className="pt-4">
-              <Button
-                onClick={mintNFT}
-                disabled={!formData.file || !formData.name || isLoading}
-                className="w-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md float-right"
-              >
-                {isLoading ? "Creating..." : "Create INFT"}
-              </Button>
+              <div>
+                <label htmlFor="externalLink" className="block text-white text-sm font-medium mb-2">
+                  External link
+                </label>
+                <input
+                  type="text"
+                  id="externalLink"
+                  name="externalLink"
+                  value={formData.externalLink}
+                  onChange={handleInputChange}
+                  placeholder="https://yoursite.io/item/123"
+                  className="w-full px-4 py-2 bg-black border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                />
+              </div>
+
+              <div className="pt-4">
+                <Button
+                  onClick={mintNFT}
+                  disabled={!formData.file || !formData.name || isLoading}
+                  className="w-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md float-right"
+                >
+                  {isLoading ? "Creating..." : "Create INFT"}
+                </Button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </main>
+      <FooterSection />
     </div>
   );
 }
