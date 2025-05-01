@@ -192,7 +192,7 @@ export default function CreateNFT() {
     <div className="min-h-screen w-full bg-black">
       <HeroHeader />
       <div className="max-w-5xl mx-auto px-4 pt-23 pb-24">
-        <h1 className="text-3xl md:text-4xl font-bold mb-8 text-white">Create an NFT</h1>
+        <h1 className="text-3xl md:text-4xl font-bold mb-8 text-white">Mint INFT</h1>
         <p className="text-muted-foreground mb-8">Once your item is minted you will not be able to change any of its information.</p>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -220,8 +220,8 @@ export default function CreateNFT() {
                   </div>
                   <p className="text-sm text-gray-400">Drag and drop media</p>
                   <p className="text-xs text-gray-500 mt-1">or click to browse files</p>
-                  <p className="text-xs text-gray-600 mt-4">Max size: 50MB</p>
-                  <p className="text-xs text-gray-600">Supported: JPG, PNG, GIF, SVG, MP4</p>
+                  <p className="text-xs text-gray-600 mt-4">Max size: 10MB</p>
+                  <p className="text-xs text-gray-600">Supported: JPG, PNG,</p>
                 </div>
               )}
             </div>
@@ -242,7 +242,8 @@ export default function CreateNFT() {
                 <span className="mr-2">+</span>
                 Create a new collection
               </Button>
-              <p className="text-xs text-muted-foreground mt-1">Not all collections are eligible</p>
+              <p className="text-xs text-muted-foreground mt-1">Coming soon</p>
+             {/* <p className="text-xs text-muted-foreground mt-1">Not all collections are eligible</p> */}
             </div>
             
             <div>

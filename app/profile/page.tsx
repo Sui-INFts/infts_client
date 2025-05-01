@@ -16,8 +16,8 @@ export default function Profile() {
   const router = useRouter();
   const account = useCurrentAccount();
 
-  const handleCreateNFT = () => {
-    router.push("/create");
+  const handleMintNFT = () => {
+    router.push("/walrus_mint");
   };
 
   const avatarSeed = getStableSeed(account?.address || null);
@@ -46,11 +46,11 @@ export default function Profile() {
                 <Button 
                   size="lg" 
                   variant="default" 
-                  onClick={handleCreateNFT} 
+                  onClick={handleMintNFT} 
                   className="bg-primary text-primary-foreground"
                 >
                   <PlusCircle className="mr-2 h-4 w-4" />
-                  Create INFT
+                  Mint INFT
                 </Button>
               </>
             ) : (
