@@ -84,7 +84,7 @@ export default function Profile() {
           <div className="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-4 items-center">
             {account ? (
               <>
-                <div className="flex items-center space-x-2 bg-zinc-900/50 px-4 py-2 rounded-lg border border-zinc-800">
+                <div className="flex items-center space-x-2 bg-zinc-900/50 px-4 py-2 rounded-lg border border-zinc-800 h-10">
                   <Wallet className="h-4 w-4 text-zinc-400" />
                   <div className="flex items-center space-x-2">
                     <span className="text-sm font-medium text-white">{formattedBalance} SUI</span>
@@ -96,7 +96,7 @@ export default function Profile() {
                   size="lg" 
                   variant="default" 
                   onClick={handleCreateNFT} 
-                  className="bg-primary text-primary-foreground"
+                  className="bg-primary text-primary-foreground h-10"
                 >
                   <PlusCircle className="mr-2 h-4 w-4" />
                   Create INFT
