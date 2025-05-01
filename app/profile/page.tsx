@@ -55,8 +55,8 @@ export default function Profile() {
     fetchBalance();
   }, [account?.address, suiClient]);
 
-  const handleMintNFT = () => {
-    router.push("/sui_mint");
+  const handleCreateNFT = () => {
+    router.push("/create");
   };
 
   const avatarSeed = getStableSeed(account?.address || null);
@@ -95,11 +95,11 @@ export default function Profile() {
                 <Button 
                   size="lg" 
                   variant="default" 
-                  onClick={handleMintNFT} 
+                  onClick={handleCreateNFT} 
                   className="bg-primary text-primary-foreground"
                 >
                   <PlusCircle className="mr-2 h-4 w-4" />
-                  Mint INFT
+                  Create INFT
                 </Button>
               </>
             ) : (
