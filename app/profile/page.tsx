@@ -7,6 +7,7 @@ import { ConnectButton } from "@mysten/dapp-kit";
 import { useSuiClient } from "@mysten/dapp-kit";
 import { HeroHeader } from "@/components/header";
 import { PlusCircle, Wallet } from "lucide-react";
+import FooterSection from "@/components/footer";
 
 function getStableSeed(address: string | null) {
   // Use the wallet address as seed if available, otherwise use a fixed fallback
@@ -64,10 +65,10 @@ export default function Profile() {
   const usdValue = balance ? ((parseInt(balance) / 1e9) * suiPrice).toFixed(2) : "0.00";
 
   return (
-    <div className="min-h-screen w-full bg-black">
+    <div className="min-h-screen w-full bg-black flex flex-col">
       <HeroHeader />
       {/* Profile Info Section */}
-      <div className="max-w-5xl mx-auto px-4 pt-30">
+      <div className="max-w-5xl mx-auto px-4 pt-30 flex-1">
         <div className="flex flex-row items-center gap-8">
           <div className="w-32 h-32 rounded-full bg-black border-2 border-white flex items-center justify-center overflow-hidden">
             <img
@@ -133,6 +134,7 @@ export default function Profile() {
           <p className="text-sm">Try adjusting your filters or search terms.</p>
         </div>
       </div>
+      <FooterSection />
     </div>
   );
 }
