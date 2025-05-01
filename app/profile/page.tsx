@@ -17,7 +17,7 @@ export default function Profile() {
   const account = useCurrentAccount();
 
   const handleMintNFT = () => {
-    router.push("/walrus_mint");
+    router.push("/sui_mint");
   };
 
   const avatarSeed = getStableSeed(account?.address || null);

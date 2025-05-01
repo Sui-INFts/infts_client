@@ -143,9 +143,8 @@ export default function MintNFT() {
       <div className="max-w-5xl mx-auto px-4 pt-23 pb-24">
         <h1 className="text-3xl md:text-4xl font-bold mb-8 text-white">Mint INFT</h1>
         <p className="text-muted-foreground mb-8">
-          Once your item is minted you will not be able to change any of its information.
+          Once your NFT is minted you will not be able to change any of its information.
         </p>
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           {/* Left Side - Upload Area */}
           <div className="flex flex-col">
@@ -253,7 +252,7 @@ export default function MintNFT() {
                 className="w-full"
                 size="lg"
               >
-                {isLoading ? "Creating..." : "Create INFT"}
+                {isLoading ? "Minting..." : "Mint INFT"}
               </Button>
             </div>
           </div>
