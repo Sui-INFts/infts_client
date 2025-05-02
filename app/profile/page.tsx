@@ -8,6 +8,7 @@ import { useSuiClient } from "@mysten/dapp-kit";
 import { HeroHeader } from "@/components/header";
 import { PlusCircle, Wallet } from "lucide-react";
 import FooterSection from "@/components/footer";
+import MintedNFTs from "./components/minted";
 
 function getStableSeed(address: string | null) {
   // Use the wallet address as seed if available, otherwise use a fixed fallback
@@ -128,11 +129,8 @@ export default function Profile() {
           />
           <Button variant="outline" size="sm">Recently received</Button>
         </div>
-        {/* Empty State */}
-        <div className="text-center text-muted-foreground py-16">
-          <p className="text-lg font-semibold mb-2">No items found for this search</p>
-          <p className="text-sm">Try adjusting your filters or search terms.</p>
-        </div>
+        {/* NFT Display */}
+        <MintedNFTs />
       </div>
       <FooterSection />
     </div>
