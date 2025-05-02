@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useCurrentAccount, useWallets, useSignAndExecuteTransaction } from "@mysten/dapp-kit";
-import { Transaction as TransactionBlock } from "@mysten/sui/transactions";
+import { Transaction as SuiTransaction } from "@mysten/sui/transactions";
 import { useNetworkVariables } from "@/contract";
 import { toast } from "sonner";
 import { HeroHeader } from "@/components/header";
@@ -173,7 +173,8 @@ export default function CreateNFT() {
       const privateMetadataUri = await uploadToWalrus(privateMetadataFile);
     
       // 4. Create and execute the transaction
-      const tx = new TransactionBlock();
+      // const tx = new TransactionBlock();
+      const tx = new SuiTransaction();
       
       // Set gas budget for the transaction
       tx.setGasBudget(100000000); // 0.1 SUI
@@ -190,10 +191,11 @@ export default function CreateNFT() {
           tx.pure.string(atomaModelId),                  // atoma_model_id
         ],
       });
-    
+   
       // Execute the transaction
       const result = (await signAndExecute({
-        transaction: tx,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        transaction: tx as any,
         chain: networkVariables.CHAIN_ID as `${string}:${string}`
       })) as unknown as { digest: string };
     
