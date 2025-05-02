@@ -8,6 +8,38 @@ import { HeroHeader } from "@/components/header";
 import { PlusCircle, Wallet, Copy, Check, Activity, Network, Settings } from "lucide-react";
 import FooterSection from "@/components/footer";
 import MintedNFTs from "./components/minted";
+import { toast } from "sonner";
+import { useNetworkVariables } from "@/contract";
+
+// NFTData type (copied from MintedNFTs NFT interface)
+interface NFTData {
+  id: string;
+  name: string;
+  description: string;
+  image_url: string;
+  evolution_stage: number;
+  interaction_count: number;
+  atoma_model_id: string;
+}
+
+// Helper to map Sui object to NFTData
+function mapSuiObjectToNFTData(obj: any): NFTData | null {
+  try {
+    const content = obj.data?.content?.fields || obj.data?.content?.fields || obj.content?.fields;
+    if (!content) return null;
+    return {
+      id: obj.data?.objectId || obj.objectId || content.id?.id || '',
+      name: content.name || 'Unnamed NFT',
+      description: content.description || '',
+      image_url: content.image_url || '/placeholder-image.png',
+      evolution_stage: parseInt(content.evolution_stage) || 0,
+      interaction_count: parseInt(content.interaction_count) || 0,
+      atoma_model_id: content.atoma_model_id || '',
+    };
+  } catch (e) {
+    return null;
+  }
+}
 
 function getStableSeed(address: string | null) {
   // Use the wallet address as seed if available, otherwise use a fixed fallback
@@ -143,10 +175,11 @@ export default function Profile() {
         // Filter for NFTs created by the current wallet
         const nfts = objects.data
           .map(mapSuiObjectToNFTData)
-          .filter((nft): nft is NFTData => 
-            nft !== null && 
-            nft.content?.dataType === 'moveObject' &&
-            nft.content?.fields?.creator === account.address
+          .filter((nft): nft is NFTData & { content?: any } =>
+            nft !== null &&
+            typeof (nft as any).content !== 'undefined' &&
+            (nft as any).content?.dataType === 'moveObject' &&
+            (nft as any).content?.fields?.creator === account.address
           );
 
         setCreatedNFTs(nfts);
