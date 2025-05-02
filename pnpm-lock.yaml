@@ -12,7 +12,7 @@ importers:
         specifier: ^0.16.0
         version: 0.16.0(@tanstack/react-query@5.74.4(react@19.1.0))(@types/react-dom@19.1.2(@types/react@19.1.2))(@types/react@19.1.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3)
       '@mysten/sui':
-        specifier: ^1.29.0
+        specifier: ^1.28.2
         version: 1.29.0(typescript@5.8.3)
       '@mysten/wallet-kit':
         specifier: ^0.8.6
@@ -75,9 +75,6 @@ importers:
       '@eslint/eslintrc':
         specifier: ^3
         version: 3.3.1
-      '@mysten/sui.js':
-        specifier: ^0.54.1
-        version: 0.54.1(typescript@5.8.3)
       '@tailwindcss/postcss':
         specifier: ^4
         version: 4.1.4
@@ -917,9 +914,6 @@ packages:
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
 
-  '@mysten/bcs@0.11.1':
-    resolution: {integrity: sha512-xP85isNSYUCHd3O/g+TmZYmg4wK6cU8q/n/MebkIGP4CYVJZz2wU/G24xIZ3wI+0iTop4dfgA5kYrg/DQKCUzA==}
-
   '@mysten/bcs@0.9.0':
     resolution: {integrity: sha512-h56essa8oSS4/J0Dby8k8stMoOSt+QZIEIeZNtgTOWh9HeV69yFg2BUg/+Rk7jzfWzvUmw9lFyKNipXcD5QOTw==}
 
@@ -940,11 +934,6 @@ packages:
 
   '@mysten/sui.js@0.48.0':
     resolution: {integrity: sha512-kGeV5F3IYThiliVbIou3YOOGAr8TdNyub4hGY2gevnphFQF8SukwQk8cyzuEEsAVSDUt0rsA9xxpncSgX+RjMA==}
-    engines: {node: '>=16'}
-    deprecated: This package has been renamed to @mysten/sui, please update to use the renamed package.
-
-  '@mysten/sui.js@0.54.1':
-    resolution: {integrity: sha512-TSmGIX7U9O/uS9EKIQdv7/S69KTbBhMJVelXCafJE6IJw8iB9cN9uLu0+uklkBSDrbRmLSEY70jMr3uRFjReIg==}
     engines: {node: '>=16'}
     deprecated: This package has been renamed to @mysten/sui, please update to use the renamed package.
 
@@ -4576,10 +4565,6 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@mysten/bcs@0.11.1':
-    dependencies:
-      bs58: 5.0.0
-
   '@mysten/bcs@0.9.0':
     dependencies:
       bs58: 5.0.0
@@ -4641,25 +4626,6 @@ snapshots:
       '@suchipi/femver': 1.0.0
       superstruct: 1.0.3
       tweetnacl: 1.0.3
-
-  '@mysten/sui.js@0.54.1(typescript@5.8.3)':
-    dependencies:
-      '@graphql-typed-document-node/core': 3.2.0(graphql@16.11.0)
-      '@mysten/bcs': 0.11.1
-      '@noble/curves': 1.9.0
-      '@noble/hashes': 1.8.0
-      '@scure/bip32': 1.7.0
-      '@scure/bip39': 1.6.0
-      '@suchipi/femver': 1.0.0
-      bech32: 2.0.0
-      gql.tada: 1.8.10(graphql@16.11.0)(typescript@5.8.3)
-      graphql: 16.11.0
-      superstruct: 1.0.3
-      tweetnacl: 1.0.3
-    transitivePeerDependencies:
-      - '@gql.tada/svelte-support'
-      - '@gql.tada/vue-support'
-      - typescript
 
   '@mysten/sui@1.28.2(typescript@5.8.3)':
     dependencies:
