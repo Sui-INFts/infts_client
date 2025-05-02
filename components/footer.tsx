@@ -5,8 +5,8 @@ import Logo from "../assets/logo/Logo.png";
 export default function FooterSection() {
   return (
     <footer className="border-t bg-background/50 backdrop-blur-sm">
-      <div className="mx-auto max-w-6xl px-6 py-12">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-4">
           {/* Brand Section */}
           <div className="space-y-4">
             <Link href="/" aria-label="go home" className="inline-block">
@@ -16,6 +16,7 @@ export default function FooterSection() {
                 alt="Logo"
                 height={32}
                 width={32}
+                priority
               />
             </Link>
             <p className="text-sm text-muted-foreground">
@@ -28,17 +29,17 @@ export default function FooterSection() {
             <h3 className="mb-4 text-sm font-semibold">Quick Links</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/" className="text-muted-foreground hover:text-primary">
+                <Link href="/" className="text-muted-foreground hover:text-primary transition-colors">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/profile" className="text-muted-foreground hover:text-primary">
+                <Link href="/profile" className="text-muted-foreground hover:text-primary transition-colors">
                   Profile
                 </Link>
               </li>
               <li>
-                <Link href="/marketplace" className="text-muted-foreground hover:text-primary">
+                <Link href="/marketplace" className="text-muted-foreground hover:text-primary transition-colors">
                   Marketplace
                 </Link>
               </li>
@@ -50,17 +51,17 @@ export default function FooterSection() {
             <h3 className="mb-4 text-sm font-semibold">Resources</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/docs" className="text-muted-foreground hover:text-primary">
+                <Link href="/docs" className="text-muted-foreground hover:text-primary transition-colors">
                   Documentation
                 </Link>
               </li>
               <li>
-                <Link href="/faq" className="text-muted-foreground hover:text-primary">
+                <Link href="/faq" className="text-muted-foreground hover:text-primary transition-colors">
                   FAQ
                 </Link>
               </li>
               <li>
-                <Link href="/blog" className="text-muted-foreground hover:text-primary">
+                <Link href="/blog" className="text-muted-foreground hover:text-primary transition-colors">
                   Blog
                 </Link>
               </li>
@@ -76,7 +77,7 @@ export default function FooterSection() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="X/Twitter"
-                className="text-muted-foreground hover:text-primary"
+                className="text-muted-foreground hover:text-primary transition-colors"
               >
                 <svg
                   className="size-5"
@@ -96,7 +97,7 @@ export default function FooterSection() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="LinkedIn"
-                className="text-muted-foreground hover:text-primary"
+                className="text-muted-foreground hover:text-primary transition-colors"
               >
                 <svg
                   className="size-5"
@@ -115,7 +116,7 @@ export default function FooterSection() {
           </div>
         </div>
 
-        <div className="mt-12 border-t pt-8">
+        <div className="mt-8 border-t pt-6 sm:mt-12 sm:pt-8">
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
             <p className="text-sm text-muted-foreground">
               © {new Date().getFullYear()} INFTs Protocol. All rights reserved.
