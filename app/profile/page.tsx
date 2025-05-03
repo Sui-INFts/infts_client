@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { useCurrentAccount, useSuiClient } from "@mysten/dapp-kit";
 import { ConnectButton } from "@mysten/dapp-kit";
 import { HeroHeader } from "@/components/header";
-import { PlusCircle, Wallet, Copy, Check, Activity, Network, Settings } from "lucide-react";
+import { PlusCircle, Wallet, Copy, Check, Activity } from "lucide-react";
 import FooterSection from "@/components/footer";
-import MintedNFTs from "./components/minted";
 import { toast } from "sonner";
 import { useNetworkVariables } from "@/contract";
+import { NFTGrid } from "@/components/NFTGrid";
+import { TransactionList } from "@/components/TransactionList";
 
 // NFTData type (copied from MintedNFTs NFT interface)
 interface NFTData {
@@ -20,23 +21,49 @@ interface NFTData {
   evolution_stage: number;
   interaction_count: number;
   atoma_model_id: string;
+  content?: {
+    fields?: {
+      owner?: string;
+      creator?: string;
+    };
+  };
+  isFavorite?: boolean;
 }
 
-// Helper to map Sui object to NFTData
+// Improved helper to map Sui object to NFTData
 function mapSuiObjectToNFTData(obj: any): NFTData | null {
   try {
-    const content = obj.data?.content?.fields || obj.data?.content?.fields || obj.content?.fields;
-    if (!content) return null;
+    // Check if object has data and content
+    const content = obj.data?.content?.fields || obj.content?.fields;
+    
+    // If we don't have content fields, try to use display fields
+    if (!content && !obj.data?.display?.data) {
+      console.log('Object missing content fields:', obj);
+      return null;
+    }
+    
+    // Get display data if available
+    const displayData = obj.data?.display?.data || {};
+    
+    // Create NFT data with fallbacks for all properties
     return {
-      id: obj.data?.objectId || obj.objectId || content.id?.id || '',
-      name: content.name || 'Unnamed NFT',
-      description: content.description || '',
-      image_url: content.image_url || '/placeholder-image.png',
-      evolution_stage: parseInt(content.evolution_stage) || 0,
-      interaction_count: parseInt(content.interaction_count) || 0,
-      atoma_model_id: content.atoma_model_id || '',
+      id: obj.data?.objectId || obj.objectId || '',
+      name: content?.name || displayData.name || 'Unnamed NFT',
+      description: content?.description || displayData.description || '',
+      image_url: content?.image_url || displayData.image_url || '/logo.png',
+      evolution_stage: parseInt(content?.evolution_stage) || 0,
+      interaction_count: parseInt(content?.interaction_count) || 0,
+      atoma_model_id: content?.atoma_model_id || '',
+      content: {
+        fields: {
+          owner: content?.owner || obj.data?.owner?.AddressOwner || obj.owner?.AddressOwner,
+          creator: content?.creator || displayData.creator || ''
+        }
+      },
+      isFavorite: false
     };
   } catch (e) {
+    console.error('Error mapping NFT data:', e);
     return null;
   }
 }
@@ -68,7 +95,43 @@ export default function Profile() {
   const [activeTab, setActiveTab] = React.useState('Collected');
   const [ownedNFTs, setOwnedNFTs] = React.useState<NFTData[]>([]);
   const [createdNFTs, setCreatedNFTs] = React.useState<NFTData[]>([]);
+  const [favoriteNFTs, setFavoriteNFTs] = React.useState<NFTData[]>([]);
   const [isLoadingNFTs, setIsLoadingNFTs] = React.useState(false);
+
+  // Load favorite NFTs from localStorage on component mount
+  React.useEffect(() => {
+    const savedFavorites = localStorage.getItem('favoriteNFTs');
+    if (savedFavorites) {
+      setFavoriteNFTs(JSON.parse(savedFavorites));
+    }
+  }, []);
+
+  // Save favorite NFTs to localStorage whenever they change
+  React.useEffect(() => {
+    localStorage.setItem('favoriteNFTs', JSON.stringify(favoriteNFTs));
+  }, [favoriteNFTs]);
+
+  const handleFavoriteToggle = (nftId: string) => {
+    setOwnedNFTs(prevNFTs => 
+      prevNFTs.map(nft => 
+        nft.id === nftId ? { ...nft, isFavorite: !nft.isFavorite } : nft
+      )
+    );
+    setCreatedNFTs(prevNFTs => 
+      prevNFTs.map(nft => 
+        nft.id === nftId ? { ...nft, isFavorite: !nft.isFavorite } : nft
+      )
+    );
+
+    const nft = [...ownedNFTs, ...createdNFTs].find(n => n.id === nftId);
+    if (nft) {
+      if (nft.isFavorite) {
+        setFavoriteNFTs(prev => prev.filter(f => f.id !== nftId));
+      } else {
+        setFavoriteNFTs(prev => [...prev, { ...nft, isFavorite: true }]);
+      }
+    }
+  };
 
   React.useEffect(() => {
     const fetchSuiPrice = async () => {
@@ -131,21 +194,43 @@ export default function Profile() {
       
       setIsLoadingNFTs(true);
       try {
+        // Get all owned objects with enhanced options
         const objects = await suiClient.getOwnedObjects({
           owner: account.address,
           options: {
             showType: true,
             showContent: true,
-            showDisplay: true
-          }
+            showDisplay: true,
+            showOwner: true,
+          },
+          // Increase limit to get more NFTs
+          limit: 50,
         });
 
-        // Filter for NFTs (objects with display metadata)
+        console.log('Fetched objects total:', objects.data.length);
+        
+        // Process all objects to extract NFTs
         const nfts = objects.data
-          .map(mapSuiObjectToNFTData)
+          .map(object => {
+            const mappedNFT = mapSuiObjectToNFTData(object);
+            if (mappedNFT) {
+              console.log('Successfully mapped NFT:', mappedNFT.id, mappedNFT.name);
+            }
+            return mappedNFT;
+          })
           .filter((nft): nft is NFTData => nft !== null);
 
+        console.log('Total mapped NFTs:', nfts.length);
         setOwnedNFTs(nfts);
+        
+        // Also fetch created NFTs (NFTs where user is the creator)
+        // This could be implemented based on your specific contract design
+        // For now, we'll filter from owned NFTs any that have the user as creator
+        const userCreated = nfts.filter(nft => 
+          nft.content?.fields?.creator === account.address
+        );
+        setCreatedNFTs(userCreated);
+        
       } catch (error) {
         console.error("Error fetching owned NFTs:", error);
         toast.error("Failed to fetch NFTs");
@@ -155,43 +240,6 @@ export default function Profile() {
     };
 
     fetchOwnedNFTs();
-  }, [account?.address, suiClient]);
-
-  React.useEffect(() => {
-    const fetchCreatedNFTs = async () => {
-      if (!account?.address) return;
-      
-      setIsLoadingNFTs(true);
-      try {
-        const objects = await suiClient.getOwnedObjects({
-          owner: account.address,
-          options: {
-            showType: true,
-            showContent: true,
-            showDisplay: true
-          }
-        });
-
-        // Filter for NFTs created by the current wallet
-        const nfts = objects.data
-          .map(mapSuiObjectToNFTData)
-          .filter((nft): nft is NFTData & { content?: any } =>
-            nft !== null &&
-            typeof (nft as any).content !== 'undefined' &&
-            (nft as any).content?.dataType === 'moveObject' &&
-            (nft as any).content?.fields?.creator === account.address
-          );
-
-        setCreatedNFTs(nfts);
-      } catch (error) {
-        console.error("Error fetching created NFTs:", error);
-        toast.error("Failed to fetch created NFTs");
-      } finally {
-        setIsLoadingNFTs(false);
-      }
-    };
-
-    fetchCreatedNFTs();
   }, [account?.address, suiClient]);
 
   React.useEffect(() => {
@@ -212,7 +260,7 @@ export default function Profile() {
           },
           limit: 10,
         });
-
+  
         // Then get transactions where the address is the recipient
         const receivedTxns = await suiClient.queryTransactionBlocks({
           filter: {
@@ -225,11 +273,41 @@ export default function Profile() {
           },
           limit: 10,
         });
-
-        // Combine and sort by timestamp
-        const allTxns = [...sentTxns.data, ...receivedTxns.data]
-          .sort((a, b) => Number(b.timestampMs) - Number(a.timestampMs))
-          .slice(0, 10); // Take the 10 most recent
+  
+        // Create a map to store unique transactions with their type
+        const uniqueTxnsMap = new Map();
+        
+        // Process sent transactions
+        sentTxns.data.forEach(txn => {
+          uniqueTxnsMap.set(txn.digest, {
+            digest: txn.digest,
+            data: txn, 
+            type: 'sent'
+          });
+        });
+        
+        // Process received transactions (update type if already exists)
+        receivedTxns.data.forEach(txn => {
+          if (uniqueTxnsMap.has(txn.digest)) {
+            // This transaction is both sent and received
+            uniqueTxnsMap.get(txn.digest).type = 'both';
+          } else {
+            // This is only a received transaction
+            uniqueTxnsMap.set(txn.digest, {
+              digest: txn.digest,
+              data: txn,
+              type: 'received'
+            });
+          }
+        });
+        
+        // Convert map to array and sort by timestamp
+        const allTxns = Array.from(uniqueTxnsMap.values())
+          .sort((a, b) => {
+            const aTime = Number(a.data.timestampMs);
+            const bTime = Number(b.data.timestampMs);
+            return bTime - aTime; // newest first
+          });
         
         setTransactions(allTxns);
       } catch (error) {
@@ -239,7 +317,7 @@ export default function Profile() {
         setIsLoadingTransactions(false);
       }
     };
-
+  
     fetchTransactions();
     // Refresh transactions every 30 seconds
     const interval = setInterval(fetchTransactions, 30000);
@@ -256,6 +334,22 @@ export default function Profile() {
       setCopied(true);
       toast.success("Address copied to clipboard");
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const getDisplayNFTs = () => {
+    switch(activeTab) {
+      case 'Collected':
+        return ownedNFTs;
+      case 'Created':
+        return createdNFTs;
+      case 'Favorited':
+        return favoriteNFTs;
+      case 'Offers made':
+      case 'Deals':
+        return [];
+      default:
+        return ownedNFTs;
     }
   };
 
@@ -337,7 +431,7 @@ export default function Profile() {
 
         {/* Tabs */}
         <div className="flex flex-wrap gap-2 border-b border-zinc-800/50 mb-8 pb-2 w-full">
-          {['Collected', 'Offers made', 'Deals', 'Created', 'Favorited', 'Activity', 'More'].map(tab => (
+          {['Collected', 'Created', 'Offers made', 'Deals', 'Favorited', 'Activity'].map(tab => (
             <Button 
               key={tab} 
               variant="ghost" 
@@ -365,8 +459,30 @@ export default function Profile() {
           />
           <Button variant="outline" size="sm" className="hover:bg-zinc-800/50 border-zinc-800/50">Recently received</Button>
         </div>
+        
         {/* NFT Display */}
-        <MintedNFTs />
+        {(activeTab === 'Collected' || activeTab === 'Created' || activeTab === 'Favorited') && (
+          <NFTGrid 
+            nfts={getDisplayNFTs()} 
+            isLoading={isLoadingNFTs} 
+            onFavoriteToggle={handleFavoriteToggle}
+          />
+        )}
+        
+        {activeTab === 'Activity' && (
+          <TransactionList transactions={transactions} isLoading={isLoadingTransactions} />
+        )}
+        
+        {/* Empty states for other tabs */}
+        {(activeTab === 'Offers made' || activeTab === 'Deals') && (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="w-24 h-24 bg-zinc-900/50 rounded-full flex items-center justify-center mb-4">
+              <Activity className="w-12 h-12 text-zinc-600" />
+            </div>
+            <h3 className="text-xl font-semibold text-white mb-2">No {activeTab} Found</h3>
+            <p className="text-zinc-400">You don't have any {activeTab.toLowerCase()} yet.</p>
+          </div>
+        )}
       </div>
       <FooterSection />
     </div>
