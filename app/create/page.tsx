@@ -72,13 +72,17 @@ export default function CreateNFT() {
         size: file.size
       });
 
+      if (!account?.address) {
+        throw new Error("Wallet address is required for upload");
+      }
+
       // Upload the file to Walrus storage
       const response = await fetch(`${WALRUS_PUBLISHER_URL}/v1/blobs?epochs=2`, {
         method: "PUT",
         body: file,
         headers: {
           'Content-Type': file.type || 'application/octet-stream',
-          'X-Sui-Address': account?.address || '',
+          'X-Sui-Address': account.address,
           'X-Sui-Network': SUI_NETWORK
         }
       });
@@ -142,76 +146,82 @@ export default function CreateNFT() {
     return metadata;
   };
 
-  // Mint NFT on the SUI blockchain
-  const mintNFT = async () => {
-    if (!account || !formData.file || wallets.length === 0) {
-      toast.error("Please connect your wallet and select a file");
-      return;
-    }
+// Mint NFT on the SUI blockchain
+const mintNFT = async () => {
+  if (!account || !formData.file || wallets.length === 0) {
+    toast.error("Please connect your wallet and select a file");
+    return;
+  }
 
-    console.log("Connected account address:", account?.address);
-    if (!account?.address) {
-      toast.error("Wallet is not connected properly.");
-      return;
-    }
+  console.log("Connected account address:", account?.address);
+  if (!account?.address) {
+    toast.error("Wallet is not connected properly.");
+    return;
+  }
 
-    setIsLoading(true);
-    try {
-      // 1. Upload media to Walrus
-      const imageUrl = await uploadToWalrus(formData.file);
+  setIsLoading(true);
+  const toastId = toast.loading("Preparing your NFT...");
+  
+  try {
+    // 1. Upload media to Walrus
+    toast.loading("Uploading media...", { id: toastId });
+    console.log("Starting media upload...");
+    const imageUrl = await uploadToWalrus(formData.file);
+    console.log("Media uploaded successfully:", imageUrl);
+
+    // 2. Create and upload public metadata
+    toast.loading("Creating public metadata...", { id: toastId });
+    const publicMetadata = createPublicMetadata();
+    console.log("Public metadata:", publicMetadata);
+    const publicMetadataBlob = new Blob([JSON.stringify(publicMetadata)], { type: "application/json" });
+    const publicMetadataFile = new File([publicMetadataBlob], "public_metadata.json");
+    const publicMetadataUri = await uploadToWalrus(publicMetadataFile);
+    console.log("Public metadata uploaded:", publicMetadataUri);
+
+    // 3. Create and upload private metadata
+    toast.loading("Creating private metadata...", { id: toastId });
+    const privateMetadata = createPrivateMetadata();
+    console.log("Private metadata:", privateMetadata);
+    const privateMetadataBlob = new Blob([JSON.stringify(privateMetadata)], { type: "application/json" });
+    const privateMetadataFile = new File([privateMetadataBlob], "private_metadata.json");
+    const privateMetadataUri = await uploadToWalrus(privateMetadataFile);
+    console.log("Private metadata uploaded:", privateMetadataUri);
+
+    // 4. Create and execute the transaction
+    console.log("Creating transaction with package ID:", networkVariables.PACKAGE_ID);
+    const tx = new SuiTransaction();
+    tx.setGasBudget(200000000); // Increased to 0.2 SUI for better reliability
+
+    tx.moveCall({
+      target: `${networkVariables.PACKAGE_ID}::inft_core::mint_nft`,
+      arguments: [
+        tx.pure.string(formData.name),
+        tx.pure.string(formData.description),
+        tx.pure.string(imageUrl),
+        tx.pure.string(publicMetadataUri),
+        tx.pure.string(privateMetadataUri),
+        tx.pure.string(atomaModelId),
+      ],
+    });
+
+    console.log("Transaction created, waiting for wallet approval...");
+    toast.loading("Waiting for wallet approval...", { id: toastId });
+
+    const result = await signAndExecute({
+      transaction: tx as any,
+      chain: networkVariables.CHAIN_ID as `${string}:${string}`
+    });
+
+    console.log("Transaction result:", result);
+    toast.success("Intelligent NFT minted successfully!", { id: toastId });
     
-      // 2. Create and upload public metadata
-      const publicMetadata = createPublicMetadata();
-      const publicMetadataBlob = new Blob([JSON.stringify(publicMetadata)], { type: "application/json" });
-      const publicMetadataFile = new File([publicMetadataBlob], "public_metadata.json");
-      const publicMetadataUri = await uploadToWalrus(publicMetadataFile);
-      
-      // 3. Create and upload private metadata
-      const privateMetadata = createPrivateMetadata();
-      const privateMetadataBlob = new Blob([JSON.stringify(privateMetadata)], { type: "application/json" });
-      const privateMetadataFile = new File([privateMetadataBlob], "private_metadata.json");
-      const privateMetadataUri = await uploadToWalrus(privateMetadataFile);
-    
-      // 4. Create and execute the transaction
-      // const tx = new TransactionBlock();
-      const tx = new SuiTransaction();
-      
-      // Set gas budget for the transaction
-      tx.setGasBudget(100000000); // 0.1 SUI
-      
-      // Use the mint_nft function from inft_core.move
-      tx.moveCall({
-        target: `${networkVariables.PACKAGE_ID}::inft_core::mint_nft`,
-        arguments: [
-          tx.pure.string(formData.name),                  // name
-          tx.pure.string(formData.description),          // description
-          tx.pure.string(imageUrl),                      // image_url
-          tx.pure.string(publicMetadataUri),             // public_metadata_uri
-          tx.pure.string(privateMetadataUri),            // private_metadata_uri
-          tx.pure.string(atomaModelId),                  // atoma_model_id
-        ],
-      });
-   
-      // Execute the transaction
-      const result = (await signAndExecute({
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        transaction: tx as any,
-        chain: networkVariables.CHAIN_ID as `${string}:${string}`
-      })) as unknown as { digest: string };
-    
-      if (result?.digest) {
-        toast.success("Intelligent NFT minted successfully!");
-        router.push("/profile"); // Redirect to profile page
-      } else {
-        toast.error("Failed to mint NFT");
-      }
-    } catch (error) {
-      console.error("Error minting NFT:", error);
-      toast.error(`Error minting NFT: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  } catch (error) {
+    console.error("Error minting NFT:", error);
+    toast.error(`Error minting NFT: ${error instanceof Error ? error.message : 'Unknown error'}`, { id: toastId });
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen w-full flex flex-col">
