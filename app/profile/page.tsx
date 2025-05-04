@@ -8,7 +8,6 @@ import { HeroHeader } from "@/components/header";
 import { PlusCircle, Wallet, Copy, Check, Activity } from "lucide-react";
 import FooterSection from "@/components/footer";
 import { toast } from "sonner";
-import { useNetworkVariables } from "@/contract";
 import { NFTGrid } from "@/components/NFTGrid";
 import { TransactionList } from "@/components/TransactionList";
 
@@ -30,8 +29,68 @@ interface NFTData {
   isFavorite?: boolean;
 }
 
+interface Transaction {
+  digest: string;
+  data: {
+    timestampMs?: number;
+    effects?: {
+      gasUsed?: {
+        computationCost?: number;
+        storageCost?: number;
+        storageRebate?: number;
+      };
+    };
+  };
+  type?: string;
+}
+
+interface SuiObject {
+  data?: {
+    content?: {
+      fields?: {
+        name?: string;
+        description?: string;
+        image_url?: string;
+        evolution_stage?: string;
+        interaction_count?: string;
+        atoma_model_id?: string;
+        owner?: string;
+        creator?: string;
+      };
+    };
+    display?: {
+      data?: {
+        name?: string;
+        description?: string;
+        image_url?: string;
+        creator?: string;
+      };
+    };
+    objectId?: string;
+    owner?: {
+      AddressOwner?: string;
+    };
+  };
+  content?: {
+    fields?: {
+      name?: string;
+      description?: string;
+      image_url?: string;
+      evolution_stage?: string;
+      interaction_count?: string;
+      atoma_model_id?: string;
+      owner?: string;
+      creator?: string;
+    };
+  };
+  objectId?: string;
+  owner?: {
+    AddressOwner?: string;
+  };
+}
+
 // Improved helper to map Sui object to NFTData
-function mapSuiObjectToNFTData(obj: any): NFTData | null {
+function mapSuiObjectToNFTData(obj: SuiObject): NFTData | null {
   try {
     // Check if object has data and content
     const content = obj.data?.content?.fields || obj.content?.fields;
@@ -51,8 +110,8 @@ function mapSuiObjectToNFTData(obj: any): NFTData | null {
       name: content?.name || displayData.name || 'Unnamed NFT',
       description: content?.description || displayData.description || '',
       image_url: content?.image_url || displayData.image_url || '/logo.png',
-      evolution_stage: parseInt(content?.evolution_stage) || 0,
-      interaction_count: parseInt(content?.interaction_count) || 0,
+      evolution_stage: content?.evolution_stage ? parseInt(content.evolution_stage) : 0,
+      interaction_count: content?.interaction_count ? parseInt(content.interaction_count) : 0,
       atoma_model_id: content?.atoma_model_id || '',
       content: {
         fields: {
@@ -77,11 +136,10 @@ export default function Profile() {
   const router = useRouter();
   const account = useCurrentAccount();
   const suiClient = useSuiClient();
-  const networkVariables = useNetworkVariables();
   const [balance, setBalance] = React.useState<string>("0");
   const [suiPrice, setSuiPrice] = React.useState<number>(0);
   const [copied, setCopied] = React.useState(false);
-  const [transactions, setTransactions] = React.useState<any[]>([]);
+  const [transactions, setTransactions] = React.useState<Transaction[]>([]);
   const [isLoadingTransactions, setIsLoadingTransactions] = React.useState(false);
   const [networkStatus, setNetworkStatus] = React.useState<{
     status: 'online' | 'offline' | 'syncing';
@@ -212,7 +270,7 @@ export default function Profile() {
         // Process all objects to extract NFTs
         const nfts = objects.data
           .map(object => {
-            const mappedNFT = mapSuiObjectToNFTData(object);
+            const mappedNFT = mapSuiObjectToNFTData(object as unknown as SuiObject);
             if (mappedNFT) {
               console.log('Successfully mapped NFT:', mappedNFT.id, mappedNFT.name);
             }
@@ -480,7 +538,7 @@ export default function Profile() {
               <Activity className="w-12 h-12 text-zinc-600" />
             </div>
             <h3 className="text-xl font-semibold text-white mb-2">No {activeTab} Found</h3>
-            <p className="text-zinc-400">You don't have any {activeTab.toLowerCase()} yet.</p>
+            <p className="text-zinc-400">You don&apos;t have any {activeTab.toLowerCase()} yet.</p>
           </div>
         )}
       </div>
