@@ -1,8 +1,36 @@
 import React from "react";
 import { History } from "lucide-react";
 
+
+//Fix any Error added this
+interface Transaction {
+  data?: {
+    effects?: {
+      gasUsed?: {
+        computationCost?: number;
+        storageCost?: number;
+        storageRebate?: number;
+      };
+    };
+    timestampMs?: number;
+    digest?: string;
+  };
+  effects?: {
+    gasUsed?: {
+      computationCost?: number;
+      storageCost?: number;
+      storageRebate?: number;
+    };
+  };
+  timestamp?: number;
+  timestampMs?: number;
+  digest?: string;
+  type?: string;
+}
+
 interface TransactionListProps {
-  transactions: any[];
+  // transaction: any[]
+  transactions: Transaction[];
   isLoading: boolean;
 }
 
@@ -37,10 +65,9 @@ export function TransactionList({ transactions, isLoading }: TransactionListProp
           const formattedTime = timestamp.toLocaleTimeString();
           const formattedDate = timestamp.toLocaleDateString();
           
-          // Get transaction type (if available from our enhanced format)
-          const txType = txn.type || 'unknown';
-          
           // Get digest from the correct location in the object
+          //also fix this cos of an error 
+          // const txType = txn.type || 'unknown';
           const digest = txn.digest || txn.data?.digest || '';
             
           return (

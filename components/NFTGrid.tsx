@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, } from '@/components/ui/card';
+// import { Button } from '@/components/ui/button';
 import { Activity, Heart, Image as ImageIcon } from 'lucide-react';
 
 interface NFTData {
@@ -73,7 +73,7 @@ export function NFTGrid({ nfts, isLoading, onFavoriteToggle }: NFTGridProps) {
           <Heart className="w-12 h-12 text-zinc-600" />
         </div>
         <h3 className="text-xl font-semibold text-white mb-2">No NFTs Found</h3>
-        <p className="text-zinc-400">You don't have any NFTs in your collection yet.</p>
+        <p className="text-zinc-400">You don&apos;t have any NFTs in your collection yet.</p>
       </div>
     );
   }
