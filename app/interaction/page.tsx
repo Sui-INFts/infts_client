@@ -1,9 +1,12 @@
 'use client';
+
 import { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
-import useAtomaChat from '../../hooks/useAtoma';
+import { useSearchParams } from 'next/navigation';
 import { HeroHeader } from '@/components/header';
+import { Activity } from 'lucide-react';
 import FooterSection from '@/components/footer';
+import useAtomaChat from '../../hooks/useAtoma';
 import { AnimatePresence, motion } from 'framer-motion';
 
 interface ChatMessage {
@@ -11,7 +14,21 @@ interface ChatMessage {
   content: string;
 }
 
-export default function Home() {
+interface NFT {
+  name?: string;
+  description?: string;
+  image_url?: string;
+  content?: {
+    fields?: {
+      owner?: string;
+    };
+  };
+  interaction_count?: number;
+}
+
+export default function Interaction() {
+  const searchParams = useSearchParams();
+  const [nft, setNft] = useState<NFT | null>(null);
   const [message, setMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [displayedResponse, setDisplayedResponse] = useState('');
@@ -20,16 +37,25 @@ export default function Home() {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
 
+  useEffect(() => {
+    const nftString = searchParams.get('nft');
+    if (nftString) {
+      try {
+        const parsedNft = JSON.parse(decodeURIComponent(nftString));
+        setNft(parsedNft);
+      } catch (error) {
+        console.error('Failed to parse NFT data:', error);
+      }
+    }
+  }, [searchParams]);
+
   // Handle form submission
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!message.trim() || isLoading) return;
     
-    // Add user message to chat history
     const newMessage: ChatMessage = { role: 'user', content: message };
     setChatHistory(prev => [...prev, newMessage]);
-    
-    // Clear input and start processing
     await handleChat(message);
     setMessage('');
   };
@@ -55,8 +81,7 @@ export default function Home() {
   useEffect(() => {
     if (isTyping && fullResponse) {
       let i = 0;
-      const typingSpeed = 15; // ms per character - adjust for speed
-      
+      const typingSpeed = 15;
       const typingInterval = setInterval(() => {
         if (i < fullResponse.length) {
           setDisplayedResponse(fullResponse.substring(0, i + 1));
@@ -64,12 +89,9 @@ export default function Home() {
         } else {
           clearInterval(typingInterval);
           setIsTyping(false);
-          
-          // Add AI response to chat history once typing is complete
           setChatHistory(prev => [...prev, { role: 'assistant', content: fullResponse }]);
         }
       }, typingSpeed);
-      
       return () => clearInterval(typingInterval);
     }
   }, [isTyping, fullResponse]);
@@ -81,55 +103,70 @@ export default function Home() {
     }
   }, [chatHistory, displayedResponse]);
 
+  if (!nft) {
+    return (
+      <div className="min-h-screen w-full bg-gradient-to-b from-black to-gray-900 flex flex-col items-center justify-center">
+        <Head>
+          <title>INFTS | Interaction</title>
+          <meta name="description" content="Interact with your selected NFT" />
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
+        <HeroHeader />
+        <div className="text-center text-gray-500 py-12">
+          <p>No NFT selected. Please go back and select an NFT.</p>
+        </div>
+        <FooterSection />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-black to-gray-900 flex flex-col">
       <Head>
-        <title>INFTS | NFT Intelligence</title>
-        <meta name="description" content="AI-powered platform with Atoma Network integration for NFT interaction" />
+        <title>INFTS | Interaction</title>
+        <meta name="description" content="Interact with your selected NFT" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       
       <HeroHeader />
       
       <div className="max-w-7xl mx-auto px-6 pt-24 pb-16 flex-1 w-full">
-        <div className="flex flex-col md:flex-row items-start md:items-center gap-8 mb-12">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            className="w-40 h-40 rounded-full bg-gradient-to-br from-gray-800/30 to-gray-800/10 border-2 border-gray-700/40 flex items-center justify-center overflow-hidden shadow-xl"
-          >
-            <motion.img 
-              whileHover={{ scale: 1.05, rotate: 5 }}
-              src="/logo.png" 
-              alt="INFTS Logo" 
-              className="w-36 h-36 object-cover" 
+        {/* NFT Data Row */}
+        <div className="flex flex-col md:flex-row items-center gap-8 mb-12">
+          <div className="w-48 h-48 rounded-lg bg-gradient-to-br from-gray-800/30 to-gray-800/10 border-2 border-gray-700/40 flex items-center justify-center overflow-hidden shadow-xl relative">
+            <div className="absolute inset-0 border-4 border-dashed border-gray-600/40 rounded-lg animate-pulse"></div>
+            <img
+              src={nft.image_url ? nft.image_url : '/placeholder-nft.png'} 
+              alt={nft.name || 'NFT'}
+              className="w-44 h-44 object-cover rounded-lg"
             />
-          </motion.div>
+          </div>
           <div className="flex-1 text-left space-y-4">
-            <motion.h1 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-              className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-100 to-gray-300"
-            >
-              INFTS
-            </motion.h1>
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.5 }}
-              className="text-base md:text-lg text-gray-400 leading-relaxed"
-            >
-              Integrated with Atoma Network for decentralized AI inference with privacy and security.
-              <br />Connect to your NFTs and unlock their intelligence.
-            </motion.p>
+            <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-100 to-gray-300">
+              {nft.name || 'Unnamed NFT'}
+            </h1>
+            <p className="text-base md:text-lg text-gray-400 leading-relaxed">
+              {nft.description || 'No description available'}
+            </p>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-400">Owner:</span>
+              <span className="text-sm text-gray-200 font-mono">
+                {nft.content?.fields?.owner 
+                  ? `${nft.content.fields.owner.slice(0, 6)}...${nft.content.fields.owner.slice(-4)}` 
+                  : 'N/A'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Activity className="w-4 h-4 text-gray-400" />
+              <span className="text-sm text-gray-200">
+                {nft.interaction_count || 0} interactions
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Chat container */}
+        {/* Chat Container */}
         <div className="w-full max-w-2xl mx-auto bg-gray-900/50 rounded-2xl shadow-2xl overflow-hidden border border-gray-800/50">
-          {/* Chat history area */}
           <div 
             ref={chatContainerRef}
             className="h-96 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent"
@@ -153,7 +190,7 @@ export default function Home() {
                     transition={{ duration: 0.3 }}
                     className={`max-w-[80%] rounded-2xl p-4 ${
                       chat.role === 'user' 
-                        ? 'bg-blue-900/30 text-white ml-auto border border-blue-800/30' 
+                        ? 'bg-[#ABEDE4]/30 text-white ml-auto border border-[#ABEDE4]/30'
                         : 'bg-gray-800/80 text-gray-200 border border-gray-700/50'
                     }`}
                   >
@@ -162,8 +199,6 @@ export default function Home() {
                 </div>
               ))
             )}
-            
-            {/* Currently typing message */}
             {isTyping && (
               <div className="flex justify-start">
                 <motion.div 
@@ -176,8 +211,6 @@ export default function Home() {
                 </motion.div>
               </div>
             )}
-
-            {/* Error message */}
             <AnimatePresence>
               {error && (
                 <motion.div 
@@ -191,8 +224,6 @@ export default function Home() {
               )}
             </AnimatePresence>
           </div>
-
-          {/* Input area */}
           <form onSubmit={handleSubmit} className="border-t border-gray-800/50 p-4">
             <div className="flex items-center bg-gray-800/80 rounded-xl overflow-hidden shadow-inner">
               <input
@@ -230,8 +261,6 @@ export default function Home() {
           </form>
         </div>
       </div>
-      
-      <FooterSection />
     </div>
   );
 }
