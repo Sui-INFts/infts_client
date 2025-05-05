@@ -38,7 +38,13 @@ const nextConfig: NextConfig = {
   },
   // Optional: Add webpack configuration if needed
   webpack: (config) => {
-    config.resolve.fallback = { fs: false, net: false, tls: false };
+    config.resolve = {
+      ...config.resolve,
+      fallback: {
+        ...config.resolve?.fallback,
+        "blake2": require.resolve('blakejs')
+      }
+    };
     return config;
   },
 };

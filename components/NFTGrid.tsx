@@ -154,10 +154,10 @@ export function NFTGrid({ nfts, isLoading, onFavoriteToggle }: NFTGridProps) {
                     <span className="font-medium text-primary/80">Owner:</span>
                     <span className="font-mono">{nft.content?.fields?.owner ? `${nft.content.fields.owner.slice(0, 6)}...${nft.content.fields.owner.slice(-4)}` : 'N/A'}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-zinc-200">
+                  {/* <div className="flex items-center gap-2 text-sm text-zinc-200">
                     <span className="font-medium text-primary/80">Creator:</span>
                     <span className="font-mono">{nft.content?.fields?.creator ? `${nft.content.fields.creator.slice(0, 6)}...${nft.content.fields.creator.slice(-4)}` : 'N/A'}</span>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>
