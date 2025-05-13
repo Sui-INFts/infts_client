@@ -1,5 +1,6 @@
-'use client';
+"use client";
 
+import React, { Suspense } from "react";
 import { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import { useSearchParams } from 'next/navigation';
@@ -26,7 +27,8 @@ interface NFT {
   interaction_count?: number;
 }
 
-export default function Interaction() {
+// Create a client component that uses useSearchParams
+const InteractionContent = () => {
   const searchParams = useSearchParams();
   const [nft, setNft] = useState<NFT | null>(null);
   const [message, setMessage] = useState('');
@@ -262,5 +264,14 @@ export default function Interaction() {
         </div>
       </div>
     </div>
+  );
+};
+
+// Main page component with Suspense
+export default function InteractionPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <InteractionContent />
+    </Suspense>
   );
 }

@@ -10,6 +10,7 @@ import FooterSection from "@/components/footer";
 import { toast } from "sonner";
 import { NFTGrid } from "@/components/NFTGrid";
 import { TransactionList } from "@/components/TransactionList";
+import Image from "next/image";
 
 // NFTData type (copied from MintedNFTs NFT interface)
 interface NFTData {
@@ -132,7 +133,7 @@ function getStableSeed(address: string | null) {
   return address || "default-seed";
 }
 
-export default function Profile() {
+const Profile: React.FC = () => {
   const router = useRouter();
   const account = useCurrentAccount();
   const suiClient = useSuiClient();
@@ -422,9 +423,11 @@ export default function Profile() {
       <div className="max-w-7xl mx-auto px-6 pt-32 pb-16 flex-1">
         <div className="flex flex-col md:flex-row items-start md:items-center gap-8 mb-12">
           <div className="w-40 h-40 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 border-2 border-primary/30 flex items-center justify-center overflow-hidden shadow-xl">
-            <img
+            <Image
               src={`https://api.dicebear.com/7.x/bottts/svg?seed=${avatarSeed}`}
               alt="Profile Avatar"
+              width={144}
+              height={144}
               className="w-36 h-36 object-cover"
             />
           </div>
@@ -545,4 +548,6 @@ export default function Profile() {
       <FooterSection />
     </div>
   );
-}
+};
+
+export default Profile;
