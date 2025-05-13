@@ -77,7 +77,7 @@ export default function CreateNFT() {
       }
 
       // Upload the file to Walrus storage
-      const response = await fetch(`${WALRUS_PUBLISHER_URL}/v1/blobs?epochs=2`, {
+      const response = await fetch(`${WALRUS_PUBLISHER_URL}/v1/blobs?epochs=1`, {
         method: "PUT",
         body: file,
         headers: {
