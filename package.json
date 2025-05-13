@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@mysten/dapp-kit": "^0.16.0",
-    "@mysten/sui": "^1.29.0",
+    "@mysten/sui": "^1.28.2",
     "@mysten/wallet-kit": "^0.8.6",
     "@radix-ui/react-dialog": "^1.1.13",
     "@radix-ui/react-dropdown-menu": "^2.1.12",
@@ -21,12 +21,9 @@
     "@radix-ui/react-tooltip": "^1.2.4",
     "@suiet/wallet-kit": "^0.3.5",
     "@tanstack/react-query": "^5.74.4",
-    "atoma-sdk": "^0.1.1",
     "axios": "^1.9.0",
-    "blakejs": "^1.2.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "framer-motion": "^12.9.4",
     "lucide-react": "^0.503.0",
     "motion": "^12.9.1",
     "next": "15.3.1",
@@ -49,8 +46,5 @@
     "eslint-config-next": "15.3.1",
     "tailwindcss": "^4",
     "typescript": "^5"
-  },
-  "resolutions": {
-    "blake2": "npm:blakejs@1.2.1"
   }
 }
