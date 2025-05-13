@@ -1,11 +1,12 @@
+
 "use client";
 
 import React, { useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useCurrentAccount, useWallets, useSignAndExecuteTransaction } from "@mysten/dapp-kit";
-import { Transaction as SuiTransaction } from "@mysten/sui/transactions";
+import { Transaction } from "@mysten/sui/transactions";
 import { useNetworkVariables } from "@/contract";
 import { toast } from "sonner";
 import { HeroHeader } from "@/components/header";
@@ -20,12 +21,11 @@ interface NFTFormData {
 }
 
 // Walrus storage connection details
-const WALRUS_PUBLISHER_URL = "https://sui-walrus-testnet-publisher.bwarelabs.com";
-const WALRUS_AGGREGATOR_URL = "https://walrus-aggregator-testnet.haedal.xyz";
+const WALRUS_PUBLISHER_URL = "https://publisher.walrus-testnet.walrus.space";
+const WALRUS_AGGREGATOR_URL = "https://aggregator.walrus-testnet.walrus.space";
 const SUI_NETWORK = "testnet";
 
 export default function CreateNFT() {
-  const router = useRouter();
   const account = useCurrentAccount();
   const wallets = useWallets();
   const networkVariables = useNetworkVariables();
@@ -76,8 +76,11 @@ export default function CreateNFT() {
         throw new Error("Wallet address is required for upload");
       }
 
+      const uploadUrl = `${WALRUS_PUBLISHER_URL}/v1/blobs?epochs=5`;
+      console.log("Upload URL:", uploadUrl);
+
       // Upload the file to Walrus storage
-      const response = await fetch(`${WALRUS_PUBLISHER_URL}/v1/blobs?epochs=1`, {
+      const response = await fetch(uploadUrl, {
         method: "PUT",
         body: file,
         headers: {
@@ -87,17 +90,18 @@ export default function CreateNFT() {
         }
       });
 
-      console.log("Upload response status:", response.status);
-      
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("Upload failed with status:", response.status);
-        console.error("Error response:", errorText);
-        throw new Error(`Failed to upload file to Walrus storage: ${response.status} - ${errorText}`);
+        console.error("Upload failed:", {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorText
+        });
+        throw new Error(`Failed to upload file: ${response.status} ${response.statusText} - ${errorText}`);
       }
 
       const data = await response.json();
-      console.log("Upload response data:", data);
+      console.log("Upload response:", data);
 
       // Extract the blob ID from the response
       let blobId: string;
@@ -106,16 +110,14 @@ export default function CreateNFT() {
       } else if (data.alreadyCertified) {
         blobId = data.alreadyCertified.blobId;
       } else {
-        console.error("Unexpected response format:", data);
-        throw new Error("Unexpected response format from Walrus");
+        throw new Error("Invalid response format from Walrus");
       }
 
-      // Construct the URL to access the blob
       const blobUrl = `${WALRUS_AGGREGATOR_URL}/v1/blobs/${blobId}`;
       console.log("Successfully uploaded. Blob URL:", blobUrl);
       return blobUrl;
     } catch (error) {
-      console.error("Error uploading to Walrus:", error);
+      console.error("Error in uploadToWalrus:", error);
       throw error;
     }
   };
@@ -189,7 +191,7 @@ const mintNFT = async () => {
 
     // 4. Create and execute the transaction
     console.log("Creating transaction with package ID:", networkVariables.PACKAGE_ID);
-    const tx = new SuiTransaction();
+    const tx = new Transaction();
     tx.setGasBudget(200000000); // Increased to 0.2 SUI for better reliability
 
     tx.moveCall({
@@ -208,7 +210,8 @@ const mintNFT = async () => {
     toast.loading("Waiting for wallet approval...", { id: toastId });
 
     const result = await signAndExecute({
-      transaction: tx as any,
+      // @ts-expect-error - Version mismatch between @mysten packages
+      transaction: tx,
       chain: networkVariables.CHAIN_ID as `${string}:${string}`
     });
 

@@ -8,8 +8,10 @@
     - Frontend dApp requests decryption key via Seal SDK
     - Seal backend verifies onchain policy and identity
     - Data decrypted on client-side
+
+
 3. **Evolution**
-    - User performs action (interaction, game, quest, etc.)
+    - User performs action (interaction.)
     - Updates stored encrypted state on Walrus
     - Smart contract updates NFT evolution metadata
 4. **Gated Access/Unlock**
