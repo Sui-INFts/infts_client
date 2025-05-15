@@ -10,7 +10,7 @@ import { Transaction } from "@mysten/sui/transactions";
 import { useNetworkVariables } from "@/contract";
 import { toast } from "sonner";
 import { HeroHeader } from "@/components/header";
-import FooterSection from "@/components/footer";
+// import FooterSection from "@/components/footer";
 
 // Define the NFT form data structure
 interface NFTFormData {
@@ -323,7 +323,7 @@ const mintNFT = async () => {
                 />
               </div>
 
-              <div>
+              {/* <div>
                 <label htmlFor="externalLink" className="block text-white text-sm font-medium mb-2">
                   External link
                 </label>
@@ -336,22 +336,22 @@ const mintNFT = async () => {
                   placeholder="https://yoursite.io/item/123"
                   className="w-full px-4 py-2 bg-black border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                 />
-              </div>
+              </div> */}
 
               <div className="pt-4">
                 <Button
                   onClick={mintNFT}
                   disabled={!formData.file || !formData.name || isLoading}
-                  className="w-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md float-right"
+                  className="w-auto px-51 py-2 bg-white hover:bg-gray-100 text-black rounded-md float-right"
                 >
-                  {isLoading ? "Creating..." : "Create INFT"}
+                  {isLoading ? "Minting..." : "Mint INFT"}
                 </Button>
               </div>
             </div>
           </div>
         </div>
       </main>
-      <FooterSection />
+      {/* <FooterSection /> */}
     </div>
   );
 }
