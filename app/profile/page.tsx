@@ -10,7 +10,7 @@ import FooterSection from "@/components/footer";
 import { toast } from "sonner";
 import { NFTGrid } from "@/components/NFTGrid";
 import { TransactionList } from "@/components/TransactionList";
-import Image from "next/image";
+// import Image from "next/image";
 
 // NFTData type (copied from MintedNFTs NFT interface)
 interface NFTData {
@@ -128,10 +128,10 @@ function mapSuiObjectToNFTData(obj: SuiObject): NFTData | null {
   }
 }
 
-function getStableSeed(address: string | null) {
-  // Use the wallet address as seed if available, otherwise use a fixed fallback
-  return address || "default-seed";
-}
+// function getStableSeed(address: string | null) {
+//   // Use the wallet address as seed if available, otherwise use a fixed fallback
+//   return address || "default-seed";
+// }
 
 const Profile: React.FC = () => {
   const router = useRouter();
@@ -153,7 +153,6 @@ const Profile: React.FC = () => {
   });
   const [activeTab, setActiveTab] = React.useState('Collected');
   const [ownedNFTs, setOwnedNFTs] = React.useState<NFTData[]>([]);
-  const [createdNFTs, setCreatedNFTs] = React.useState<NFTData[]>([]);
   const [favoriteNFTs, setFavoriteNFTs] = React.useState<NFTData[]>([]);
   const [isLoadingNFTs, setIsLoadingNFTs] = React.useState(false);
 
@@ -176,13 +175,8 @@ const Profile: React.FC = () => {
         nft.id === nftId ? { ...nft, isFavorite: !nft.isFavorite } : nft
       )
     );
-    setCreatedNFTs(prevNFTs => 
-      prevNFTs.map(nft => 
-        nft.id === nftId ? { ...nft, isFavorite: !nft.isFavorite } : nft
-      )
-    );
 
-    const nft = [...ownedNFTs, ...createdNFTs].find(n => n.id === nftId);
+    const nft = ownedNFTs.find(n => n.id === nftId);
     if (nft) {
       if (nft.isFavorite) {
         setFavoriteNFTs(prev => prev.filter(f => f.id !== nftId));
@@ -281,14 +275,6 @@ const Profile: React.FC = () => {
 
         console.log('Total mapped NFTs:', nfts.length);
         setOwnedNFTs(nfts);
-        
-        // Also fetch created NFTs (NFTs where user is the creator)
-        // This could be implemented based on your specific contract design
-        // For now, we'll filter from owned NFTs any that have the user as creator
-        const userCreated = nfts.filter(nft => 
-          nft.content?.fields?.creator === account.address
-        );
-        setCreatedNFTs(userCreated);
         
       } catch (error) {
         console.error("Error fetching owned NFTs:", error);
@@ -400,19 +386,16 @@ const Profile: React.FC = () => {
     switch(activeTab) {
       case 'Collected':
         return ownedNFTs;
-      case 'Created':
-        return createdNFTs;
       case 'Favorited':
         return favoriteNFTs;
       case 'Offers made':
-      case 'Deals':
         return [];
       default:
         return ownedNFTs;
     }
   };
 
-  const avatarSeed = getStableSeed(account?.address || null);
+  // const avatarSeed = getStableSeed(account?.address || null);
   const formattedBalance = balance ? (parseInt(balance) / 1e9).toFixed(2) : "0.00";
   const usdValue = balance ? ((parseInt(balance) / 1e9) * suiPrice).toFixed(2) : "0.00";
 
@@ -422,14 +405,7 @@ const Profile: React.FC = () => {
       {/* Profile Info Section */}
       <div className="max-w-7xl mx-auto px-6 pt-32 pb-16 flex-1">
         <div className="flex flex-col md:flex-row items-start md:items-center gap-8 mb-12">
-          <div className="w-40 h-40 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 border-2 border-primary/30 flex items-center justify-center overflow-hidden shadow-xl">
-            <Image
-              src={`https://api.dicebear.com/7.x/bottts/svg?seed=${avatarSeed}`}
-              alt="Profile Avatar"
-              width={144}
-              height={144}
-              className="w-36 h-36 object-cover"
-            />
+          <div className="w-30 h-30 rounded-full bg-gradient-to-br from-blue-500/20 via-purple-500/20 to-pink-500/20 border-primary/30 flex items-center justify-center overflow-hidden shadow-xl">
           </div>
           <div className="flex-1 text-left space-y-4">
             <div className="flex items-center gap-3">
@@ -481,7 +457,7 @@ const Profile: React.FC = () => {
                   className="bg-primary text-primary-foreground h-11 shadow-md hover:shadow-lg transition-all duration-200"
                 >
                   <PlusCircle className="mr-2 h-4 w-4" />
-                  Create INFT
+                  Mint INFT
                 </Button>
               </>
             ) : (
@@ -492,7 +468,7 @@ const Profile: React.FC = () => {
 
         {/* Tabs */}
         <div className="flex flex-wrap gap-2 border-b border-zinc-800/50 mb-8 pb-2 w-full">
-          {['Collected', 'Created', 'Offers made', 'Deals', 'Favorited', 'Activity'].map(tab => (
+          {['Collected', 'Offers made', 'Favorited', 'Activity'].map(tab => (
             <Button 
               key={tab} 
               variant="ghost" 
@@ -511,7 +487,6 @@ const Profile: React.FC = () => {
         {/* Filters/Search/Sort */}
         <div className="flex flex-wrap gap-3 items-center mb-8">
           <Button variant="outline" size="sm" className="hover:bg-zinc-800/50 border-zinc-800/50">Status</Button>
-          <Button variant="outline" size="sm" className="hover:bg-zinc-800/50 border-zinc-800/50">Chains</Button>
           <input
             type="text"
             placeholder="Search by name"
@@ -522,7 +497,7 @@ const Profile: React.FC = () => {
         </div>
         
         {/* NFT Display */}
-        {(activeTab === 'Collected' || activeTab === 'Created' || activeTab === 'Favorited') && (
+        {(activeTab === 'Collected' || activeTab === 'Favorited') && (
           <NFTGrid 
             nfts={getDisplayNFTs()} 
             isLoading={isLoadingNFTs} 
@@ -535,7 +510,7 @@ const Profile: React.FC = () => {
         )}
         
         {/* Empty states for other tabs */}
-        {(activeTab === 'Offers made' || activeTab === 'Deals') && (
+        {activeTab === 'Offers made' && (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <div className="w-24 h-24 bg-zinc-900/50 rounded-full flex items-center justify-center mb-4">
               <Activity className="w-12 h-12 text-zinc-600" />
