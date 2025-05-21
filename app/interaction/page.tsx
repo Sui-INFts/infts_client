@@ -4,12 +4,11 @@ import React, { Suspense, useState, useEffect, useRef } from "react";
 import Head from 'next/head';
 import { useSearchParams } from 'next/navigation';
 import { HeroHeader } from '@/components/header';
-import { Activity, Info } from 'lucide-react';
+import { Activity, Info, Plus } from 'lucide-react';
 import FooterSection from '@/components/footer';
 import useAtomaChat from '@/hooks/useAtoma';
 import { AnimatePresence, motion } from 'framer-motion';
 import { INFT, ChatMessage } from '@/app/utils/types';
-// import { useRouter } from 'next/navigation';
 
 const StageProgressIndicator = ({ currentStage }: { currentStage: string }) => {
   const stages = ["Initiation", "Learning", "Synchronizing", "Evolving"];
@@ -44,7 +43,6 @@ const StageProgressIndicator = ({ currentStage }: { currentStage: string }) => {
 
 const InteractionContent = () => {
   const searchParams = useSearchParams();
-  // const router = useRouter();
   const [nft, setNft] = useState<INFT | null>(null);
   const [message, setMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -53,9 +51,11 @@ const InteractionContent = () => {
   const { response, error, handleChat, isLoading } = useAtomaChat();
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
-  
+  const [quotes, setQuotes] = useState(10); // Initialize with 10 quotes
+  const [interactionCount, setInteractionCount] = useState(0); // Track interactions
+
   // Determine the current stage based on interaction count
-  const getCurrentStage = (interactionCount = 0) => {
+  const getCurrentStage = (interactionCount: number) => {
     if (interactionCount < 5) return "Initiation";
     if (interactionCount < 15) return "Learning";
     if (interactionCount < 30) return "Synchronizing";
@@ -68,13 +68,14 @@ const InteractionContent = () => {
       try {
         const parsedNft = JSON.parse(decodeURIComponent(nftString));
         setNft(parsedNft);
+        // Initialize interaction count from NFT if available
+        setInteractionCount(parsedNft.interaction_count || 0);
       } catch (error) {
         console.error('Failed to parse NFT data:', error);
       }
     }
   }, [searchParams]);
 
-  // Generate instructions for Atoma to set tone without repeating context
   const getInstructions = () => {
     if (!nft) return '';
 
@@ -92,19 +93,24 @@ const InteractionContent = () => {
     }
   };
 
-  // const handleGoBack = () => {
-  //   router.back();
-  // };
-
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!message.trim() || isLoading || !nft) return;
+
+    if (quotes <= 0) {
+      alert("You have no quotes left. Please purchase more quotes to continue interacting.");
+      return;
+    }
+
+    // Decrease quotes and increase interaction count
+    setQuotes(prev => prev - 1);
+    setInteractionCount(prev => prev + 1);
 
     const newMessage: ChatMessage = { role: 'user', content: message, timestamp: Date.now() };
     setChatHistory(prev => [...prev, newMessage]);
 
     const instructions = getInstructions();
-    await handleChat(message, instructions,);
+    await handleChat(message, instructions);
     setMessage('');
   };
 
@@ -113,6 +119,13 @@ const InteractionContent = () => {
       e.preventDefault();
       handleSubmit();
     }
+  };
+
+  const handleAddQuote = () => {
+    // Simulate purchasing quotes (you can integrate with a payment system here)
+    alert("Purchase more quotes to continue interacting with your INFT.");
+    // For demo, add 10 quotes
+    setQuotes(prev => prev + 10);
   };
 
   useEffect(() => {
@@ -164,7 +177,7 @@ const InteractionContent = () => {
     );
   }
 
-  const currentStage = getCurrentStage(nft.interaction_count || 0);
+  const currentStage = getCurrentStage(interactionCount);
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-black to-gray-900 flex flex-col">
@@ -177,9 +190,6 @@ const InteractionContent = () => {
       <div className="max-w-7xl mx-auto px-6 pt-24 pb-16 flex-1 w-full">
         <div className="flex flex-col md:flex-row md:items-center gap-8 mb-12">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-8 w-full">
-           
-            
-            {/* NFT Image */}
             <div className="w-48 h-48 rounded-lg bg-gradient-to-br from-gray-800/30 to-gray-800/10 border-2 border-gray-700/40 flex items-center justify-center overflow-hidden shadow-xl relative">
               <div className="absolute inset-0 border-4 border-dashed border-gray-600/40 rounded-lg animate-pulse"></div>
               <img
@@ -188,9 +198,6 @@ const InteractionContent = () => {
                 className="w-44 h-44 object-cover rounded-lg"
               />
             </div>
-            {/* Back Button */}
-            
-            {/* NFT Details */}
             <div className="flex-1 text-left space-y-4">
               <div className="flex justify-between items-center mb-4">
                 <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-100 to-gray-300">
@@ -198,6 +205,7 @@ const InteractionContent = () => {
                 </h1>
                 <div className="flex items-center gap-2">
                   <button 
+                    onClick={handleAddQuote}
                     className="flex items-center justify-center bg-gray-800/70 hover:bg-gray-700/70 text-gray-300 px-4 py-2.5 rounded-lg transition-all duration-200"
                   >
                     <span>Add Quote</span>
@@ -213,7 +221,6 @@ const InteractionContent = () => {
               <p className="text-base md:text-lg text-gray-400 leading-relaxed">
                 {nft.description || 'No description available'}
               </p>
-            
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-gray-400">Owner:</span>
                 <span className="text-sm text-gray-200 font-mono">
@@ -222,21 +229,24 @@ const InteractionContent = () => {
                     : 'N/A'}
                 </span>
               </div>
-              
-              
-              {/* Stage Progress Indicator */}
               <StageProgressIndicator currentStage={currentStage} />
-              
-              <div className="flex items-center gap-2">
-                <Activity className="w-4 h-4 text-gray-400" />
-                <span className="text-sm text-gray-200">
-                  {nft.interaction_count || 0} interactions
-                </span>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm text-gray-200">
+                    {interactionCount} interactions
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Plus className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm text-gray-200">
+                    {quotes} Quotes
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
-        
         <div className="w-full max-w-2xl mx-auto bg-gray-900/50 rounded-2xl shadow-2xl overflow-hidden border border-gray-800/50">
           <div
             ref={chatContainerRef}
@@ -310,9 +320,9 @@ const InteractionContent = () => {
                 whileTap={{ scale: 0.95 }}
                 whileHover={{ backgroundColor: 'rgba(59, 130, 246, 0.5)' }}
                 type="submit"
-                disabled={isLoading || !message.trim()}
+                disabled={isLoading || !message.trim() || quotes <= 0}
                 className={`px-5 py-3 rounded-lg mr-2 transition-all ${
-                  isLoading || !message.trim()
+                  isLoading || !message.trim() || quotes <= 0
                     ? 'text-gray-500 cursor-not-allowed'
                     : 'text-white hover:bg-blue-900/30'
                 }`}
@@ -332,7 +342,6 @@ const InteractionContent = () => {
           </form>
         </div>
       </div>
-      {/* <FooterSection /> */}
     </div>
   );
 };
