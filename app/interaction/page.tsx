@@ -4,14 +4,47 @@ import React, { Suspense, useState, useEffect, useRef } from "react";
 import Head from 'next/head';
 import { useSearchParams } from 'next/navigation';
 import { HeroHeader } from '@/components/header';
-import { Activity } from 'lucide-react';
+import { Activity, Info } from 'lucide-react';
 import FooterSection from '@/components/footer';
 import useAtomaChat from '@/hooks/useAtoma';
 import { AnimatePresence, motion } from 'framer-motion';
 import { INFT, ChatMessage } from '@/app/utils/types';
+// import { useRouter } from 'next/navigation';
+
+const StageProgressIndicator = ({ currentStage }: { currentStage: string }) => {
+  const stages = ["Initiation", "Learning", "Synchronizing", "Evolving"];
+  const currentIndex = stages.indexOf(currentStage);
+  
+  return (
+    <div className="w-full pt-2">
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-sm font-medium text-gray-400">Stage:</span>
+        <span className="text-sm text-blue-300 font-medium">{currentStage}</span>
+      </div>
+      <div className="w-full bg-gray-700 rounded-full h-2.5">
+        <div 
+          className="bg-gradient-to-r from-cyan-500 to-blue-500 h-2.5 rounded-full" 
+          style={{ width: `${((currentIndex + 1) / stages.length) * 100}%` }}
+        ></div>
+      </div>
+      <div className="flex justify-between mt-1">
+        {stages.map((stage, index) => (
+          <div 
+            key={index} 
+            className={`flex flex-col items-center ${index <= currentIndex ? 'text-blue-300' : 'text-gray-500'}`}
+          >
+            <div className={`w-3 h-3 rounded-full ${index <= currentIndex ? 'bg-blue-400' : 'bg-gray-600'}`}></div>
+            <span className="text-xs mt-1 hidden md:inline">{stage}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 const InteractionContent = () => {
   const searchParams = useSearchParams();
+  // const router = useRouter();
   const [nft, setNft] = useState<INFT | null>(null);
   const [message, setMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -20,6 +53,14 @@ const InteractionContent = () => {
   const { response, error, handleChat, isLoading } = useAtomaChat();
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+  
+  // Determine the current stage based on interaction count
+  const getCurrentStage = (interactionCount = 0) => {
+    if (interactionCount < 5) return "Initiation";
+    if (interactionCount < 15) return "Learning";
+    if (interactionCount < 30) return "Synchronizing";
+    return "Evolving";
+  };
 
   useEffect(() => {
     const nftString = searchParams.get('nft');
@@ -39,7 +80,7 @@ const InteractionContent = () => {
 
     const baseInstruction = `You are an Intelligent NFT (iNFT) with the description: "${nft.description}". Respond to the user's query based on this description, but do not include the description or this instruction in your response. Focus solely on the user's input.`;
 
-    switch (nft.atoma_model_id.toLowerCase()) {
+    switch (nft.atoma_model_id?.toLowerCase()) {
       case 'creative':
         return `${baseInstruction} Use a creative tone, emphasizing imaginative ideas, storytelling, or artistic concepts related to the iNFT's theme.`;
       case 'analytical':
@@ -50,6 +91,10 @@ const InteractionContent = () => {
         return `${baseInstruction} Use a neutral, balanced tone, engaging naturally with the user based on the iNFT's theme.`;
     }
   };
+
+  // const handleGoBack = () => {
+  //   router.back();
+  // };
 
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -119,6 +164,8 @@ const InteractionContent = () => {
     );
   }
 
+  const currentStage = getCurrentStage(nft.interaction_count || 0);
+
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-black to-gray-900 flex flex-col">
       <Head>
@@ -128,38 +175,68 @@ const InteractionContent = () => {
       </Head>
       <HeroHeader />
       <div className="max-w-7xl mx-auto px-6 pt-24 pb-16 flex-1 w-full">
-        <div className="flex flex-col md:flex-row items-center gap-8 mb-12">
-          <div className="w-48 h-48 rounded-lg bg-gradient-to-br from-gray-800/30 to-gray-800/10 border-2 border-gray-700/40 flex items-center justify-center overflow-hidden shadow-xl relative">
-            <div className="absolute inset-0 border-4 border-dashed border-gray-600/40 rounded-lg animate-pulse"></div>
-            <img
-              src={nft.image_url ? nft.image_url : '/placeholder-nft.png'}
-              alt={nft.name || 'NFT'}
-              className="w-44 h-44 object-cover rounded-lg"
-            />
-          </div>
-          <div className="flex-1 text-left space-y-4">
-            <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-100 to-gray-300">
-              {nft.name || 'Unnamed NFT'}
-            </h1>
-            <p className="text-base md:text-lg text-gray-400 leading-relaxed">
-              {nft.description || 'No description available'}
-            </p>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-400">Owner:</span>
-              <span className="text-sm text-gray-200 font-mono">
-                {nft.content?.fields?.owner
-                  ? `${nft.content.fields.owner.slice(0, 6)}...${nft.content.fields.owner.slice(-4)}`
-                  : 'N/A'}
-              </span>
+        <div className="flex flex-col md:flex-row md:items-center gap-8 mb-12">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-8 w-full">
+           
+            
+            {/* NFT Image */}
+            <div className="w-48 h-48 rounded-lg bg-gradient-to-br from-gray-800/30 to-gray-800/10 border-2 border-gray-700/40 flex items-center justify-center overflow-hidden shadow-xl relative">
+              <div className="absolute inset-0 border-4 border-dashed border-gray-600/40 rounded-lg animate-pulse"></div>
+              <img
+                src={nft.image_url ? nft.image_url : '/placeholder-nft.png'}
+                alt={nft.name || 'NFT'}
+                className="w-44 h-44 object-cover rounded-lg"
+              />
             </div>
-            <div className="flex items-center gap-2">
-              <Activity className="w-4 h-4 text-gray-400" />
-              <span className="text-sm text-gray-200">
-                {nft.interaction_count || 0} interactions
-              </span>
+            {/* Back Button */}
+            
+            {/* NFT Details */}
+            <div className="flex-1 text-left space-y-4">
+              <div className="flex justify-between items-center mb-4">
+                <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-100 to-gray-300">
+                  {nft.name || 'Unnamed NFT'}
+                </h1>
+                <div className="flex items-center gap-2">
+                  <button 
+                    className="flex items-center justify-center bg-gray-800/70 hover:bg-gray-700/70 text-gray-300 px-4 py-2.5 rounded-lg transition-all duration-200"
+                  >
+                    <span>Add Quote</span>
+                  </button>
+                  <button 
+                    onClick={() => alert("Adding a quote will increase your INFT's interaction count and contribute to its evolution. Each quote costs 0.1 SUI.")}
+                    className="flex items-center justify-center bg-gray-800/70 hover:bg-gray-700/70 text-gray-300 p-2 rounded-full transition-all duration-200"
+                  >
+                    <Info className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+              <p className="text-base md:text-lg text-gray-400 leading-relaxed">
+                {nft.description || 'No description available'}
+              </p>
+            
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-gray-400">Owner:</span>
+                <span className="text-sm text-gray-200 font-mono">
+                  {nft.content?.fields?.owner
+                    ? `${nft.content.fields.owner.slice(0, 6)}...${nft.content.fields.owner.slice(-4)}`
+                    : 'N/A'}
+                </span>
+              </div>
+              
+              
+              {/* Stage Progress Indicator */}
+              <StageProgressIndicator currentStage={currentStage} />
+              
+              <div className="flex items-center gap-2">
+                <Activity className="w-4 h-4 text-gray-400" />
+                <span className="text-sm text-gray-200">
+                  {nft.interaction_count || 0} interactions
+                </span>
+              </div>
             </div>
           </div>
         </div>
+        
         <div className="w-full max-w-2xl mx-auto bg-gray-900/50 rounded-2xl shadow-2xl overflow-hidden border border-gray-800/50">
           <div
             ref={chatContainerRef}
