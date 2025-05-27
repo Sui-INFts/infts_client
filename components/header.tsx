@@ -2,15 +2,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, X } from "lucide-react";
-// import { Button } from "@/components/ui/button";
 import React from "react";
-// import { ModeToggle } from "./mode-toggle";
 import Logo from "../assets/logo/Logo.png"
-import { ConnectButton, useCurrentAccount, useDisconnectWallet } from "@mysten/dapp-kit";
+import { ConnectButton, useCurrentAccount } from "@mysten/dapp-kit";
 import { useRouter } from "next/navigation";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-// import DarkLogo from "../assets/logo/DarkLogo.png";
 
 const menuItems = [
   { name: "Home", href: "/" },
@@ -21,17 +17,39 @@ const menuItems = [
 export const HeroHeader = () => {
   const [menuState, setMenuState] = React.useState(false);
   const account = useCurrentAccount();
-  const { mutate: disconnect } = useDisconnectWallet();
   const router = useRouter();
 
   const handleProfile = () => {
     router.push("/profile");
   };
 
-  const handleDisconnect = () => {
-    disconnect();
-    router.push("/");
-  };
+  // Generate random gradient colors when component mounts
+  const [gradientColors, setGradientColors] = React.useState({
+    start: "#3b82f6",
+    end: "#8b5cf6"
+  });
+
+  React.useEffect(() => {
+    // Generate random colors for gradient on mount
+    const colors = [
+      "#3b82f6", // blue
+      "#8b5cf6", // violet
+      "#ec4899", // pink
+      "#ef4444", // red
+      "#f59e0b", // amber
+      "#10b981", // emerald
+    ];
+    
+    const start = colors[Math.floor(Math.random() * colors.length)];
+    let end = colors[Math.floor(Math.random() * colors.length)];
+    
+    // Make sure end color is different from start
+    while (end === start) {
+      end = colors[Math.floor(Math.random() * colors.length)];
+    }
+    
+    setGradientColors({ start, end });
+  }, []);
 
   return (
     <header>
@@ -47,7 +65,6 @@ export const HeroHeader = () => {
                 aria-label="home"
                 className="flex items-center space-x-2"
               >
-                {/* <Logo /> */}
                 <Image
                   className="h-6 w-6" 
                   src={Logo}
@@ -98,21 +115,19 @@ export const HeroHeader = () => {
                 </ul>
               </div>
               <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
+                <ConnectButton className="text-xs md:text-sm bg-white text-black shadow-md hover:text-white" />
                 {account ? (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="px-4 py-2">
-                        <Menu className="h-5 w-5" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-44">
-                      <DropdownMenuItem onClick={handleProfile}>Profile</DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={handleDisconnect} variant="destructive">Disconnect</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <Button 
+                    variant="outline" 
+                    className="p-0 h-12 w-12 rounded-full overflow-hidden border-0"
+                    style={{
+                      background: `linear-gradient(135deg, ${gradientColors.start}, ${gradientColors.end})`,
+                    }}
+                    onClick={handleProfile}
+                  >
+                  </Button>
                 ) : (
-                  <ConnectButton className="text-xs md:text-sm bg-white text-black shadow-md hover:text-white" />
+                  <div></div>
                 )}
               </div>
             </div>

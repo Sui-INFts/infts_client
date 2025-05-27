@@ -1,18 +1,18 @@
 import { useState } from 'react';
-import atomaSDK from '../app/utils/atomaClient';
+import atomaSDK from '@/app/utils/atomaClient';
 
 export default function useAtomaChat() {
   const [response, setResponse] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleChat = async (message: string) => {
+  const handleChat = async (message: string, instructions: string,) => {
     try {
       setIsLoading(true);
       setError('');
       const completion = await atomaSDK.chat.create({
         messages: [
-          { role: "developer", content: "You are a helpful assistant." },
+          { role: "system", content: instructions},
           { role: "user", content: message }
         ],
         model: "Infermatic/Llama-3.3-70B-Instruct-FP8-Dynamic"
