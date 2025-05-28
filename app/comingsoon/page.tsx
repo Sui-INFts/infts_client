@@ -3,6 +3,7 @@
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
 import FooterSection from "@/components/footer";
+import { HeroHeader } from '@/components/header';
 
 const gradientAnimation = keyframes`
   0% {
@@ -16,23 +17,23 @@ const gradientAnimation = keyframes`
   }
 `;
 
-const glowAnimation = keyframes`
-  0% {
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
-                 0 0 20px rgba(255, 255, 255, 0.3),
-                 0 0 30px rgba(255, 255, 255, 0.2);
-  }
-  50% {
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.8),
-                 0 0 30px rgba(255, 255, 255, 0.5),
-                 0 0 40px rgba(255, 255, 255, 0.3);
-  }
-  100% {
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
-                 0 0 20px rgba(255, 255, 255, 0.3),
-                 0 0 30px rgba(255, 255, 255, 0.2);
-  }
-`;
+// const glowAnimation = keyframes`
+//   0% {
+//     text-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
+//                  0 0 20px rgba(255, 255, 255, 0.3),
+//                  0 0 30px rgba(255, 255, 255, 0.2);
+//   }
+//   50% {
+//     text-shadow: 0 0 20px rgba(255, 255, 255, 0.8),
+//                  0 0 30px rgba(255, 255, 255, 0.5),
+//                  0 0 40px rgba(255, 255, 255, 0.3);
+//   }
+//   100% {
+//     text-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
+//                  0 0 20px rgba(255, 255, 255, 0.3),
+//                  0 0 30px rgba(255, 255, 255, 0.2);
+//   }
+// `;
 
 const Container = styled.div`
   min-height: 100vh;
@@ -103,11 +104,13 @@ const Subtitle = styled.p`
 
 const ComingSoon: React.FC = () => {
   return (
+    
     <Container>
+      <HeroHeader />
       <ContentWrapper>
         <Title>Coming Soon</Title>
         <Subtitle>
-          We're working hard to bring you something amazing. Stay tuned for updates!
+          We&apos;re working hard to bring you something amazing. Stay tuned for updates!
         </Subtitle>
       </ContentWrapper>
       <FooterSection />
