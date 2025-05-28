@@ -1,3 +1,5 @@
+import React from 'react'
+import StyledComponentsRegistry from './registry'
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Montserrat } from "next/font/google";
 import "./globals.css";
@@ -20,29 +22,29 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "INFTs",
-  description: "Intelligent NFTs on SUI",
+  title: "INFTS",
+  description: "Intelligent NFTs Platform",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${montserrat.variable} antialiased`}
-      >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Providers>{children}</Providers>
-        </ThemeProvider>
+      <body className={`${geistSans.variable} ${geistMono.variable} ${montserrat.variable} antialiased`}>
+        <StyledComponentsRegistry>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Providers>{children}</Providers>
+          </ThemeProvider>
+        </StyledComponentsRegistry>
       </body>
     </html>
-  );
+  )
 }
