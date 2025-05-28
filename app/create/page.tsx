@@ -1,8 +1,7 @@
-
 "use client";
 
 import React, { useState, useRef } from "react";
-// import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useCurrentAccount, useWallets, useSignAndExecuteTransaction } from "@mysten/dapp-kit";
@@ -40,6 +39,7 @@ export default function CreateNFT() {
     externalLink: "",
   });
   const [atomaModelId, setAtomaModelId] = useState<string>("default-model");
+  const router = useRouter();
 
   // Handle file selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -166,8 +166,8 @@ const mintNFT = async () => {
   
   try {
     // 1. Upload media to Walrus
-    toast.loading("Uploading media...", { id: toastId });
-    console.log("Starting media upload...");
+    toast.loading("Uploading to Walrus...", { id: toastId });
+    console.log("Starting Walrus upload...");
     const imageUrl = await uploadToWalrus(formData.file);
     console.log("Media uploaded successfully:", imageUrl);
 
@@ -217,6 +217,7 @@ const mintNFT = async () => {
 
     console.log("Transaction result:", result);
     toast.success("Intelligent NFT minted successfully!", { id: toastId });
+    router.push("/profile");
     
   } catch (error) {
     console.error("Error minting NFT:", error);
