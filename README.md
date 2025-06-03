@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <a href="https://publisher.walrus-testnet.walrus.space/" style="color: #a77dff">const WALRUS_PUBLISHER_URL</a> | <a href="https://aggregator.walrus-testnet.walrus.space/" style="color: #a77dff">const WALRUS_AGGREGATOR_URL</a>
+  <a href="https://publisher.walrus-testnet.walrus.space/" style="color: #a77dff">const WALRUS_PUBLISHER_URL</a> | <a href="https://aggregator.walrus-testnet.walrus.space/" style="color: #a77dff">const WALRUS_AGGREGATOR_URL</a> | <a href="https://testnet.suivision.xyz/package/0x7111b909689ec53115a2360c3fe9106c2c6f8e152dbc37d4a98bae51a37f8f62" style="color: #a77dff">Package ID</a>
 </p>
 
 ![image](https://github.com/user-attachments/assets/2fc951f2-a160-4388-9275-a044a28e0290)
