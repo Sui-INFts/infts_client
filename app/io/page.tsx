@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { HeroHeader } from '@/components/header';
 import { Activity, Info, Plus } from 'lucide-react';
 import FooterSection from '@/components/footer';
-import useIOChat from '@/hooks/useIo'; // Updated import
+import useIOChat from '@/hooks/useIo';
 import { AnimatePresence, motion } from 'framer-motion';
 import { INFT, ChatMessage } from '@/app/utils/types';
 
@@ -48,7 +48,7 @@ const InteractionContent = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [displayedResponse, setDisplayedResponse] = useState('');
   const [fullResponse, setFullResponse] = useState('');
-  const { response, error, handleChat, isLoading } = useIOChat(); // Updated hook
+  const { response, error, handleChat, isLoading } = useIOChat();
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [quotes, setQuotes] = useState(10);
@@ -107,7 +107,8 @@ const InteractionContent = () => {
     setChatHistory(prev => [...prev, newMessage]);
 
     const instructions = getInstructions();
-    await handleChat(message, instructions);
+    console.log('Submitting chat:', { message, instructions, chatHistory });
+    await handleChat(message, instructions, chatHistory);
     setMessage('');
   };
 
@@ -128,6 +129,7 @@ const InteractionContent = () => {
       setFullResponse(response);
       setIsTyping(true);
       setDisplayedResponse('');
+      setChatHistory(prev => [...prev, { role: 'assistant', content: response, timestamp: Date.now() }]);
     }
   }, [response]);
 
@@ -142,7 +144,6 @@ const InteractionContent = () => {
         } else {
           clearInterval(typingInterval);
           setIsTyping(false);
-          setChatHistory(prev => [...prev, { role: 'assistant', content: fullResponse, timestamp: Date.now() }]);
         }
       }, typingSpeed);
       return () => clearInterval(typingInterval);

@@ -52,13 +52,13 @@ export function NFTGrid({ nfts, isLoading, onFavoriteToggle }: NFTGridProps) {
     }, 1000);
   };
 
-  const handleCardClick = (nft: NFTData) => {
-    router.push(`/interaction?nft=${JSON.stringify(nft)}`);
-  };
-
   // const handleCardClick = (nft: NFTData) => {
-  //   router.push(`/io?nft=${JSON.stringify(nft)}`);
+  //   router.push(`/interaction?nft=${JSON.stringify(nft)}`);
   // };
+
+  const handleCardClick = (nft: NFTData) => {
+    router.push(`/io?nft=${JSON.stringify(nft)}`);
+  };
 
   
   if (isLoading) {

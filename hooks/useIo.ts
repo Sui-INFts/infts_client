@@ -1,47 +1,45 @@
 import { useState } from 'react';
-import { OpenAI } from 'openai';
 
-// interface ChatMessage {
-//   role: 'user' | 'assistant';
-//   content: string;
-//   timestamp: number;
-// }
+interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: number;
+}
 
 const useIOChat = () => {
   const [response, setResponse] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const client = new OpenAI({
-    apiKey: process.env.IOINTELLIGENCE_API_KEY || '',
-    baseURL: 'https://api.intelligence.io.solutions/api/v1/',
-    dangerouslyAllowBrowser: true, // Note: For production, handle API key securely on the backend
-  });
+  const handleChat = async (message: string, instructions: string, chatHistory: ChatMessage[] = []) => {
+    if (!message || !instructions) {
+      console.error('Invalid input:', { message, instructions });
+      setError('Message and instructions are required');
+      return;
+    }
 
-  const handleChat = async (message: string, instructions: string) => {
     setIsLoading(true);
     setError(null);
+
     try {
-      const completion = await client.chat.completions.create({
-        model: 'meta-llama/Llama-3.3-70B-Instruct',
-        messages: [
-          { role: 'system', content: instructions },
-          { role: 'user', content: message },
-        ],
-        temperature: 0.7,
-        stream: false,
-        max_completion_tokens: 50,
+      console.log('Sending request to /api/chat:', { message, instructions, chatHistory });
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, instructions, chatHistory }),
       });
 
-      const responseContent = completion.choices[0]?.message?.content;
-      if (responseContent) {
-        setResponse(responseContent);
+      const data = await res.json();
+      console.log('Received response from /api/chat:', data);
+
+      if (res.ok && data.choices && data.choices[0]?.message?.content) {
+        setResponse(data.choices[0].message.content);
       } else {
-        setError('No response content received from the API.');
+        setError(data.error || 'Failed to get a response from the API.');
       }
     } catch (err) {
-      console.error('Error interacting with IO Intelligence API:', err);
-      setError('Failed to get a response from the API. Please try again.');
+      console.error('Fetch error:', err);
+      setError('Failed to connect to the API. Please check your network or try again later.');
     } finally {
       setIsLoading(false);
     }
