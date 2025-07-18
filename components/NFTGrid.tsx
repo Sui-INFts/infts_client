@@ -56,7 +56,11 @@ export function NFTGrid({ nfts, isLoading, onFavoriteToggle }: NFTGridProps) {
     router.push(`/interaction?nft=${JSON.stringify(nft)}`);
   };
 
+  // const handleCardClick = (nft: NFTData) => {
+  //   router.push(`/io?nft=${JSON.stringify(nft)}`);
+  // };
 
+  
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
