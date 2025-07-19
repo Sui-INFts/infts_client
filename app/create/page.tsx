@@ -307,6 +307,7 @@ const mintNFT = async () => {
                   <option value="creative-model">Creative Model</option>
                   <option value="analytical-model">Analytical Model</option>
                   <option value="companion-model">Companion Model</option>
+                  <option value="companion-model">IO Model</option>
                 </select>
               </div>
 
