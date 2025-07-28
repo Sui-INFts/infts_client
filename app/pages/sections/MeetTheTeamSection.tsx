@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
-export const MeetTheTeamSection = (): JSX.Element => {
+export const MeetTheTeamSection = (): React.ReactElement => {
   // Decorative elements data for easier mapping
   const decorativeElements = [
     {

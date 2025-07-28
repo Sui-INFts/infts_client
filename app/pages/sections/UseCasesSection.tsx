@@ -3,7 +3,7 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
-export const UseCasesSection = (): JSX.Element => {
+export const UseCasesSection = (): React.ReactElement => {
   // Define use case data for mapping
   const useCases = [
     {
@@ -29,7 +29,7 @@ export const UseCasesSection = (): JSX.Element => {
           text: (
             <>
               <span className="text-[#ffffffa3]">
-                Lending dApps can plug into INFT's API to make{" "}
+                Lending dApps can plug into INFT&apos;s API to make{" "}
               </span>
               <span className="font-medium text-white">
                 automated loan decisions.
@@ -169,7 +169,7 @@ export const UseCasesSection = (): JSX.Element => {
         <p className="font-['Montserrat',Helvetica] font-medium text-white text-base">
           INFTs are versatile and programmable.
           <br />
-          Here's how developers, protocols, and users can utilize them:
+          Here&apos;s how developers, protocols, and users can utilize them:
         </p>
       </div>
 
