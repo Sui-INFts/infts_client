@@ -1,6 +1,7 @@
 'use client'
 
 import React from "react";
+import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
 import { FeaturedCollectionSection } from "./sections/FeaturedCollectionSection";
 import { FooterSection } from "./sections/FooterSection";
@@ -36,95 +37,111 @@ export const Home = (): React.ReactElement => {
 
         {/* Content sections - Added padding-top to account for fixed header */}
         <div className="relative z-10 flex flex-col items-center w-full gap-20 pt-20">
-          <HeroSection />
+                  <HeroSection />
 
-          <Separator className="w-20">
-            <div className="flex w-full items-center justify-center">
-              <img
-                className="w-[79.78px] h-[18.82px]"
-                alt="Vector"
-                src="/figmaAssets/vector-6.svg"
-              />
-            </div>
-          </Separator>
+        <Separator className="w-20">
+          <div className="flex w-full items-center justify-center">
+            <Image
+              className="w-[79.78px] h-[18.82px]"
+              alt="Vector"
+              src="/figmaAssets/vector-6.svg"
+              width={80}
+              height={19}
+            />
+          </div>
+        </Separator>
 
-          <IntroductionSection />
+                <IntroductionSection />
 
-          <Separator className="w-20">
-            <div className="flex w-full items-center justify-center">
-              <img
-                className="w-[79.78px] h-[18.82px]"
-                alt="Vector"
-                src="/figmaAssets/vector-6.svg"
-              />
-            </div>
-          </Separator>
+        <Separator className="w-20">
+          <div className="flex w-full items-center justify-center">
+            <Image
+              className="w-[79.78px] h-[18.82px]"
+              alt="Vector"
+              src="/figmaAssets/vector-6.svg"
+              width={80}
+              height={19}
+            />
+          </div>
+        </Separator>
 
-          <img
-            className="w-full max-w-[1194.67px]"
-            alt="Section"
-            src="/figmaAssets/section.svg"
-          />
+        <Image
+          className="w-full max-w-[1194.67px]"
+          alt="Section"
+          src="/figmaAssets/section.svg"
+          width={1195}
+          height={200}
+                />
 
-          <Separator className="w-20">
-            <div className="flex w-full items-center justify-center">
-              <img
-                className="w-[79.78px] h-[18.82px]"
-                alt="Vector"
-                src="/figmaAssets/vector-6.svg"
-              />
-            </div>
-          </Separator>
+        <Separator className="w-20">
+          <div className="flex w-full items-center justify-center">
+            <Image
+              className="w-[79.78px] h-[18.82px]"
+              alt="Vector"
+              src="/figmaAssets/vector-6.svg"
+              width={80}
+              height={19}
+            />
+          </div>
+        </Separator>
 
-          <MainContentSection />
+                <MainContentSection />
 
-          <Separator className="w-20">
-            <div className="flex w-full items-center justify-center">
-              <img
-                className="w-[79.78px] h-[18.82px]"
-                alt="Vector"
-                src="/figmaAssets/vector-6.svg"
-              />
-            </div>
-          </Separator>
+        <Separator className="w-20">
+          <div className="flex w-full items-center justify-center">
+            <Image
+              className="w-[79.78px] h-[18.82px]"
+              alt="Vector"
+              src="/figmaAssets/vector-6.svg"
+              width={80}
+              height={19}
+            />
+          </div>
+        </Separator>
 
-          <FeaturedCollectionSection />
+                <FeaturedCollectionSection />
 
-          <Separator className="w-20">
-            <div className="flex w-full items-center justify-center">
-              <img
-                className="w-[79.78px] h-[18.82px]"
-                alt="Vector"
-                src="/figmaAssets/vector-6.svg"
-              />
-            </div>
-          </Separator>
+        <Separator className="w-20">
+          <div className="flex w-full items-center justify-center">
+            <Image
+              className="w-[79.78px] h-[18.82px]"
+              alt="Vector"
+              src="/figmaAssets/vector-6.svg"
+              width={80}
+              height={19}
+            />
+          </div>
+        </Separator>
 
-          <UseCasesSection />
+                <UseCasesSection />
 
-          <Separator className="w-20">
-            <div className="flex w-full items-center justify-center">
-              <img
-                className="w-[79.78px] h-[18.82px]"
-                alt="Vector"
-                src="/figmaAssets/vector-9.svg"
-              />
-            </div>
-          </Separator>
+        <Separator className="w-20">
+          <div className="flex w-full items-center justify-center">
+            <Image
+              className="w-[79.78px] h-[18.82px]"
+              alt="Vector"
+              src="/figmaAssets/vector-9.svg"
+              width={80}
+              height={19}
+            />
+          </div>
+        </Separator>
 
-          <HowItWorksSection />
+                <HowItWorksSection />
 
-          <Separator className="w-20">
-            <div className="flex w-full items-center justify-center">
-              <img
-                className="w-[79.78px] h-[18.82px]"
-                alt="Vector"
-                src="/figmaAssets/vector-9.svg"
-              />
-            </div>
-          </Separator>
+        <Separator className="w-20">
+          <div className="flex w-full items-center justify-center">
+            <Image
+              className="w-[79.78px] h-[18.82px]"
+              alt="Vector"
+              src="/figmaAssets/vector-9.svg"
+              width={80}
+              height={19}
+            />
+          </div>
+        </Separator>
 
-          <MeetTheTeamSection />
+        <MeetTheTeamSection />
           <FooterSection />
         </div>
       </div>

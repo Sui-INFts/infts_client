@@ -14,7 +14,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 
-export const FeaturedCollectionSection = (): JSX.Element => {
+export const FeaturedCollectionSection = (): React.ReactElement => {
   // Collection data for mapping
   const collections = [
     {

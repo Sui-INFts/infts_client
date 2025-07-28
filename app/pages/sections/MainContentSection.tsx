@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 
-export const MainContentSection = (): JSX.Element => {
+export const MainContentSection = (): React.ReactElement => {
   // Data for the feature cards
   const featureCards = [
     {

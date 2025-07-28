@@ -1,7 +1,7 @@
 import React from "react";
 import { Separator } from "@/components/ui/separator";
 
-export const FooterSection = (): JSX.Element => {
+export const FooterSection = (): React.ReactElement => {
   // Footer link data for mapping
   const footerLinks = [
     {
