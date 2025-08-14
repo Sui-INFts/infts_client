@@ -6,12 +6,13 @@ import { Separator } from "@/components/ui/separator";
 import { FeaturedCollectionSection } from "./sections/FeaturedCollectionSection";
 import { FooterSection } from "./sections/FooterSection";
 import { HeroSection } from "./sections/HeroSection";
-import { HowItWorksSection } from "./sections/HowItWorksSection";
+// import { HowItWorksSection } from "./sections/HowItWorksSection";
 import { IntroductionSection } from "./sections/IntroductionSection";
 import { MainContentSection } from "./sections/MainContentSection";
-import { MeetTheTeamSection } from "./sections/MeetTheTeamSection";
+// import { MeetTheTeamSection } from "./sections/MeetTheTeamSection";
 import { UseCasesSection } from "./sections/UseCasesSection";
 import { HeroHeader } from "@/components/header";
+import { MeetTheTeamSection } from "./sections/MeetTheTeamSection";
 
 export const Home = (): React.ReactElement => {
   // Create a grid pattern for the background
@@ -20,9 +21,9 @@ export const Home = (): React.ReactElement => {
   return (
     <>
       <HeroHeader />
-      <div className="flex flex-col items-center relative bg-[#110e11] min-h-screen w-full">
+      <div className="flex flex-col items-center relative bg-[#110e11] min-h-screen w-full overflow-hidden">
         {/* Background grid pattern */}
-        <div className="flex flex-wrap w-full items-start absolute top-0 left-0 z-0">
+        <div className="flex flex-wrap w-full items-start absolute top-0 left-0 z-0 max-w-full">
           {gridCells.map((_, index) => (
             <div
               key={`grid-cell-${index}`}
@@ -115,6 +116,19 @@ export const Home = (): React.ReactElement => {
 
                 <UseCasesSection />
 
+        {/* <Separator className="w-20">
+          <div className="flex w-full items-center justify-center">
+            <Image
+              className="w-[79.78px] h-[18.82px]"
+              alt="Vector"
+              src="/figmaAssets/vector-9.svg"
+              width={80}
+              height={19}
+            />
+          </div>
+        </Separator>  */}
+                {/* <HowItWorksSection />  */}
+
         <Separator className="w-20">
           <div className="flex w-full items-center justify-center">
             <Image
@@ -125,21 +139,7 @@ export const Home = (): React.ReactElement => {
               height={19}
             />
           </div>
-        </Separator>
-
-                <HowItWorksSection />
-
-        <Separator className="w-20">
-          <div className="flex w-full items-center justify-center">
-            <Image
-              className="w-[79.78px] h-[18.82px]"
-              alt="Vector"
-              src="/figmaAssets/vector-9.svg"
-              width={80}
-              height={19}
-            />
-          </div>
-        </Separator>
+        </Separator> 
 
         <MeetTheTeamSection />
           <FooterSection />

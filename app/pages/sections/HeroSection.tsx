@@ -6,7 +6,7 @@ import Image from "next/image";
 export const HeroSection = (): React.ReactElement => {
 
   return (
-    <section className="flex flex-col items-center justify-center min-h-screen gap-[80px] md:gap-[120px] pt-20 pb-10 px-4 md:px-10 relative self-stretch w-full">
+    <section className="flex flex-col items-center justify-center min-h-screen gap-[80px] md:gap-[120px] pt-20 pb-10 px-4 md:px-10 relative self-stretch w-full overflow-hidden">
       {/* Hero Content */}
       <div className="inline-flex flex-col items-center gap-6 relative animate-fade-in-up">
         <div className="relative w-fit mt-[-1.00px] [-webkit-text-stroke:1px_#ffffff] bg-[linear-gradient(134deg,rgba(249,195,96,1)_0%,rgba(232,122,54,1)_100%)] [-webkit-background-clip:text] bg-clip-text [-webkit-text-fill-color:transparent] [text-fill-color:transparent] [font-family:'Montserrat',Helvetica] font-medium text-transparent text-sm md:text-sm text-center tracking-[-0.28px] leading-7 animate-pulse">
@@ -38,7 +38,7 @@ export const HeroSection = (): React.ReactElement => {
       {/* NFT Cards Showcase */}
       <div className="relative w-full">
         {/* Desktop: All cards */}
-        <div className="hidden md:block relative w-full h-[600px] flex items-center justify-center overflow-visible">
+        <div className="hidden md:block relative w-full h-[600px] flex items-center justify-center">
           <div className="relative w-full max-w-[1200px] lg:max-w-[1400px] h-[520px] mx-auto">
             {/* Center card (Nova) - No rotation */}
             <Card
